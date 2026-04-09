@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sovereign Vector</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+/* CSS Variables & Reset */
+:root {
+  --bg: #030108;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #120924 0%, #030108 80%);
+  --gold: #FFD700;
+  --gold-glow: rgba(255, 215, 0, 0.4);
+  --obsidian: #0A0A0C;
+  --cyan: #00D4FF;
+  --violet: #7B2FFF;
+  --crimson: #FF2D45;
+  --orange: #FF9500;
+  --grid-line: rgba(123, 47, 255, 0.15);
+  --text-main: #FFFFFF;
+  --text-dim: rgba(255,255,255,0.5);
+  --hud-bg: rgba(10, 10, 15, 0.6);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+body {
+  background: var(--bg); background-image: var(--bg-gradient);
+  color: var(--text-main); font-family: 'Inter', sans-serif;
+  height: 100vh; overflow: hidden; display: flex;
+  justify-content: center; align-items: center;
+}
+/* Background Particles Canvas */
+#bg-canvas {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+}
+#veritas-watermark {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  z-index: 1; pointer-events: none; opacity: 0.15; color: var(--gold);
+}
+#veritas-watermark .symbol {
+  font-size: 65vh; font-family: 'Playfair Display', serif; line-height: 1; margin-bottom: -20px;
+  text-shadow: 0 0 80px rgba(255, 215, 0, 0.3);
+}
+#veritas-watermark .text {
+  font-size: 8vh; font-weight: 900; letter-spacing: 25px;
+  text-transform: uppercase; margin-left: 25px;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+}
+
+#game-container-wrap {
+  position: relative; z-index: 10; display: flex; gap: 40px; align-items: center; justify-content: center;
+  transition: opacity 0.5s;
+}
+.hud-panel {
+  width: 200px; display: flex; flex-direction: column; gap: 30px;
+}
+.hud-section {
+  background: var(--hud-bg); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px; padding: 20px; text-align: center;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,215,0,0.02);
+  backdrop-filter: blur(10px);
+}
+.hud-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 3px;
+  color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px;
+}
+.hud-value {
+  font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700;
+  color: var(--gold); text-shadow: 0 0 15px rgba(255,215,0,0.3);
+}
+
+#board-container {
+  position: relative; background: rgba(3, 1, 8, 0.85);
+  border: 2px solid rgba(255,215,0,0.15); border-radius: 6px; padding: 15px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 40px rgba(123,47,255,0.1);
+  backdrop-filter: blur(8px);
+}
+#game-canvas { display: block; border-radius: 4px; }
+
+/* Menus/Overlays */
+.screen {
+  position: absolute; inset: 0; display: flex; flex-direction: column; 
+  justify-content: center; align-items: center; z-index: 20; transition: opacity 0.5s;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+}
+.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+.brand-title {
+  font-family: 'Playfair Display', serif; font-size: 64px; color: var(--gold);
+  text-shadow: 0 0 40px var(--gold-glow); margin-bottom: -10px; text-align: center;
+}
+.brand-sub {
+  font-size: 16px; font-weight: 600; letter-spacing: 6px; color: var(--text-dim);
+  text-transform: uppercase; margin-bottom: 50px; text-align: center;
+}
+.btn {
+  padding: 15px 40px; background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.3); color: var(--gold);
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 3px;
+  cursor: pointer; transition: all 0.2s; border-radius: 4px; text-transform: uppercase;
+}
+.btn:hover { background: rgba(255,215,0,0.2); box-shadow: 0 0 20px var(--gold-glow); }
+
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div id="veritas-watermark">
+  <div class="symbol">Ω</div>
+  <div class="text">VERITAS</div>
+</div>
+
+<div id="screen-menu" class="screen">
+  <div class="brand-title">SOVEREIGN VECTOR</div>
+  <div class="brand-sub">Signal Interception Protocol</div>
+  <button class="btn" onclick="startGame()">INITIATE PROTOCOL</button>
+</div>
+
+<div id="game-container-wrap" class="hidden">
+  
+  <div class="hud-panel">
+    <div class="hud-section">
+      <div class="hud-label">SCORE</div>
+      <div class="hud-value" id="ui-score">0</div>
+    </div>
+    <div class="hud-section">
+      <div class="hud-label">HIGH SCORE</div>
+      <div class="hud-value" id="ui-hiscore">0</div>
+    </div>
+  </div>
+  
+  <div id="board-container">
+    <canvas id="game-canvas"></canvas>
+    
+    <div id="overlay-gameover" class="screen hidden" style="background: rgba(0,0,0,0.7); position:absolute;">
+      <div class="brand-title" style="color:var(--crimson); text-shadow:0 0 20px rgba(255,45,69,0.5); font-size:32px; margin-bottom:20px;">SIGNAL LOST</div>
+      <button class="btn" style="border-color:var(--crimson); color:var(--crimson);" onclick="resetToMenu()">REBOOT</button>
+    </div>
+    
+    <div id="overlay-pause" class="screen hidden" style="background: rgba(0,0,0,0.7); position:absolute;">
+      <div class="brand-title" style="color:var(--text-dim); text-shadow:none; font-size:32px; margin-bottom:20px;">PAUSED</div>
+      <button class="btn" onclick="togglePause()">RESUME</button>
+    </div>
+  </div>
+  
+  <div class="hud-panel">
+    <div class="hud-section">
+      <div class="hud-label">LEVEL</div>
+      <div class="hud-value" id="ui-level" style="font-size:24px;">1</div>
+    </div>
+    <div class="hud-section">
+      <div class="hud-label">VECTORS</div>
+      <div class="hud-value" id="ui-lives" style="font-size:24px; color:var(--cyan);">3</div>
+    </div>
+  </div>
+  
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

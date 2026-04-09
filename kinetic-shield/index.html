@@ -1,0 +1,1235 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="description" content="Tactical planetary defense simulator. Protect the datacenters. VERITAS OMEGA.">
+<meta property="og:title" content="KINETIC SHIELD â€” VERITAS OMEGA">
+<meta property="og:description" content="Tactical planetary defense simulator. Protect the datacenters.">
+<meta property="og:image" content="https://vrtxomega.github.io/kinetic-shield/card.png">
+<meta property="og:url" content="https://vrtxomega.github.io/kinetic-shield/">
+<meta name="twitter:card" content="summary_large_image">
+<title>KINETIC SHIELD â€” VERITAS OMEGA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold-dark: #B8860B;
+    --obsidian: #0A0A0A;
+    --obsidian-light: #1A1A1A;
+    --brand: #7B2FFF;
+    --cyan: #00D4FF;
+    --red: #FF3333;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--obsidian);
+    color: white;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 1200px; /* Optional cap */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas { 
+    display: block; 
+    cursor: crosshair; 
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* HUD */
+  #hud {
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .hud-block {
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    border-radius: 6px;
+    padding: 12px 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  }
+  .hud-title { font-size: 10px; letter-spacing: 2px; color: var(--gold-dark); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+  .hud-val { font-size: 24px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .hud-val.cyan { color: var(--cyan); }
+  .hud-center {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  
+  /* Flash / EMP Screen */
+  #flash {
+    position: absolute; top:0; left:0; right:0; bottom:0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-out;
+  }
+
+  /* Menus */
+  .menu-panel {
+    pointer-events: auto;
+    background: rgba(10, 10, 10, 0.75);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 215, 0, 0.1) inset;
+    text-align: center;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 400px;
+    display: none;
+  }
+  .menu-panel.active { display: block; }
+  
+  h1 { font-size: 32px; font-weight: 800; color: var(--gold); letter-spacing: 4px; margin-bottom: 8px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+  .subtitle { font-size: 13px; color: #888; letter-spacing: 2px; margin-bottom: 30px; text-transform: uppercase; }
+  
+  .btn {
+    background: linear-gradient(180deg, rgba(255,215,0,0.1) 0%, rgba(200,160,0,0.05) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    color: var(--gold);
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    margin: 8px;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn:hover { background: rgba(255, 215, 0, 0.2); box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+  .btn:active { transform: translateY(2px); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #444; color: #666; background: transparent; box-shadow: none; }
+  
+  /* Upgrades */
+  .store-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 30px;
+    text-align: left;
+  }
+  .upgrade-item {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+  }
+  .u-name { font-weight: 600; font-size: 14px; color: white; display: flex; justify-content: space-between; }
+  .u-desc { font-size: 11px; color: #888; margin: 4px 0 8px 0; min-height: 26px; }
+  .u-cost { color: var(--gold); font-size: 13px; font-weight: 600; }
+  .u-lvl { color: var(--cyan); font-size: 12px; }
+
+  /* Redline alert */
+  .redline-glow {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    box-shadow: inset 0 0 150px rgba(255, 0, 0, 0);
+    pointer-events: none;
+    transition: box-shadow 0.3s ease;
+  }
+  .redline-glow.active { box-shadow: inset 0 0 150px rgba(255, 51, 51, 0.4); }
+
+  /* Announcer */
+  #announcer {
+    position: absolute; top: 30%; width: 100%; text-align: center;
+    font-size: 48px; font-weight: 800; color: white; letter-spacing: 8px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    opacity: 0; pointer-events: none;
+    transform: translateY(20px);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  /* Home Screen Tabs */
+  .home-tabs {
+    display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,215,0,0.2);
+  }
+  .home-tab {
+    flex: 1; padding: 10px 0; text-align: center; cursor: pointer;
+    font-size: 11px; letter-spacing: 2px; color: #666; font-weight: 600;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+    background: none; border-top: none; border-left: none; border-right: none;
+    font-family: 'Inter', sans-serif; text-transform: uppercase;
+  }
+  .home-tab:hover { color: #ccc; }
+  .home-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .home-tab-content { display: none; }
+  .home-tab-content.active { display: block; }
+
+  /* Career Stats */
+  .career-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px;
+  }
+  .career-stat {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,215,0,0.08);
+    border-radius: 6px; padding: 10px; text-align: center;
+  }
+  .career-stat .val { font-size: 20px; font-weight: 800; color: var(--gold); }
+  .career-stat .lbl { font-size: 9px; letter-spacing: 1.5px; color: #666; margin-top: 2px; text-transform: uppercase; }
+
+  /* Trophies */
+  .trophy-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; max-height: 260px;
+    overflow-y: auto; padding-right: 4px;
+  }
+  .trophy-grid::-webkit-scrollbar { width: 4px; }
+  .trophy-grid::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 2px; }
+  .trophy-card {
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 12px 8px; text-align: center;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .trophy-card.unlocked {
+    border-color: rgba(255,215,0,0.4);
+    box-shadow: 0 0 12px rgba(255,215,0,0.1);
+  }
+  .trophy-card .icon { font-size: 28px; margin-bottom: 6px; filter: grayscale(1) brightness(0.4); }
+  .trophy-card.unlocked .icon { filter: none; }
+  .trophy-card .name { font-size: 10px; font-weight: 700; color: #555; letter-spacing: 1px; text-transform: uppercase; }
+  .trophy-card.unlocked .name { color: var(--gold); }
+  .trophy-card .req { font-size: 9px; color: #444; margin-top: 3px; }
+  .trophy-card.unlocked .req { color: #888; }
+
+  /* Leaderboard */
+  .lb-table { width: 100%; border-collapse: collapse; }
+  .lb-table th {
+    font-size: 9px; letter-spacing: 1.5px; color: var(--gold-dark); text-transform: uppercase;
+    padding: 6px 8px; text-align: left; border-bottom: 1px solid rgba(255,215,0,0.15);
+  }
+  .lb-table td {
+    font-size: 13px; padding: 8px; color: #ccc; border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .lb-table tr:first-child td { color: var(--gold); font-weight: 700; }
+  .lb-rank { color: var(--gold-dark); font-weight: 800; width: 30px; text-align: center; }
+  .lb-empty { color: #444; font-size: 12px; text-align: center; padding: 30px 0; }
+</style>
+</head>
+<body>
+<div id="game-container">
+  <canvas id="c"></canvas>
+  <div class="redline-glow" id="redlineGlow"></div>
+  <div id="flash"></div>
+
+  <!-- HUD Overlay -->
+  <div id="hud" class="overlay">
+    <div class="hud-block">
+      <div class="hud-title">Credits</div>
+      <div class="hud-val" id="hudScore">0</div>
+    </div>
+    
+    <div class="hud-center">
+      <div class="hud-block" style="text-align: center;">
+        <div class="hud-title">Audit Layer</div>
+        <div class="hud-val cyan" id="hudWave">01</div>
+      </div>
+      <div style="margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--red); display:none;" id="hudMultiplier">REVENUE MULTIPLIER: 1.0x</div>
+      <div style="margin-top: 5px; font-size: 12px; font-weight: 800; color: var(--brand); display:none;" id="hudEMP">EMP CHARGES: 0 (SPACE)</div>
+    </div>
+
+    <div class="hud-block" style="text-align: right;">
+      <div class="hud-title">Cities Online</div>
+      <div class="hud-val" id="hudCities" style="color: #00ffaa; font-family: monospace;">â–®â–®â–®â–®â–®â–®</div>
+    </div>
+  </div>
+
+  <div id="announcer">AUDIT LAYER 01</div>
+
+  <!-- Main Menu / Home Screen -->
+  <div id="menu-main" class="menu-panel active" style="min-width:520px; max-width:560px;">
+    <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 64px; font-weight: 700; color: var(--gold); opacity: 0.35; line-height: 1; margin-bottom: 2px; text-shadow: 0 0 30px rgba(255,215,0,0.25), 0 0 60px rgba(255,215,0,0.1);">Î©</div>
+    <h1>KINETIC SHIELD</h1>
+    <div class="subtitle">VERITAS OMEGA â€” TACTICAL DEFENSE</div>
+
+    <div class="home-tabs">
+      <button class="home-tab active" data-tab="deploy">Deploy</button>
+      <button class="home-tab" data-tab="trophies">Trophies</button>
+      <button class="home-tab" data-tab="leaderboard">Leaderboard</button>
+    </div>
+
+    <!-- Deploy Tab -->
+    <div class="home-tab-content active" id="tab-deploy">
+      <div class="career-grid" id="careerGrid"></div>
+      <div style="margin-bottom: 16px; font-size: 11px; color: #777; line-height: 1.6;">
+        Protect the primary datacenters from hostile audit attacks.<br>
+        Earn credits to upgrade your AEGIS defenses.
+      </div>
+      <button class="btn" id="btnNewGame">Initialize New Run</button>
+      <button class="btn" id="btnContinue" style="display:none;">Continue Operation</button>
+    </div>
+
+    <!-- Trophies Tab -->
+    <div class="home-tab-content" id="tab-trophies">
+      <div class="trophy-grid" id="trophyGrid"></div>
+    </div>
+
+    <!-- Leaderboard Tab -->
+    <div class="home-tab-content" id="tab-leaderboard">
+      <div id="leaderboardContainer"></div>
+    </div>
+  </div>
+
+  <!-- Post Wave / Upgrade Terminal -->
+  <div id="menu-upgrade" class="menu-panel" style="max-width: 600px;">
+    <h1>UPGRADE TERMINAL</h1>
+    <div class="subtitle">AUDIT LAYER COMPLETE</div>
+    
+    <div style="display:flex; justify-content:space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom:10px;">
+      <div style="text-align:left;">
+        <div style="font-size:10px; color:#888;">Flawless Bonus</div>
+        <div style="font-size:16px; color:var(--cyan); font-weight:bold;" id="upgFBonus">Multiplier reset.</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px; color:#888;">Available Credits</div>
+        <div style="font-size:24px; color:var(--gold); font-weight:bold;" id="upgCredits">0</div>
+      </div>
+    </div>
+
+    <div class="store-grid">
+      <!-- Generated via JS -->
+    </div>
+
+    <button class="btn" id="btnNextWave">Engage Next Layer</button>
+  </div>
+
+  <!-- Game Over -->
+  <div id="menu-gameover" class="menu-panel">
+    <h1 style="color: var(--red);">ALL CITIES OFFLINE</h1>
+    <div class="subtitle">DEFENSE GRID BREACHED</div>
+    <div style="font-size: 18px; margin-bottom: 20px;">Layers Survived: <span id="goLayers" class="hud-val cyan"></span></div>
+    <button class="btn" id="btnRestart">Return to Base</button>
+  </div>
+
+  <!-- Pause -->
+  <div id="menu-pause" class="menu-panel">
+    <h1>SYSTEM PAUSED</h1>
+    <div class="subtitle">AWAITING COMMAND</div>
+
+    <div style="margin: 20px 0; text-align: left; max-width: 320px; margin-left: auto; margin-right: auto;">
+      <div style="font-size: 11px; letter-spacing: 2px; color: var(--gold); margin-bottom: 12px;">SETTINGS</div>
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #ccc; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.15); border-radius: 6px;">
+        <input type="checkbox" id="chkCrosshair" checked style="accent-color: var(--gold); width: 16px; height: 16px; cursor: pointer;">
+        Show Blast Radius Preview
+      </label>
+    </div>
+
+    <button class="btn" id="btnResume">Resume Operation</button>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//   VERITAS OMEGA â€” KINETIC SHIELD
+//   Refactored for 2026 Graphics, Upgrades & Immersion
+// ================================================================
+
+const W = 950, H = 680;
+const GROUND_Y = 580;
+const SAVE_KEY = 'veritas_kinetic_shield_save';
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  const s = Math.min(window.innerWidth / W, window.innerHeight / H);
+  canvas.width = W; canvas.height = H;
+  canvas.style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// â”€â”€ PALETTE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const P = {
+  bg:        '#050505',
+  ground:    '#111111',
+  city:      '#00ffaa',
+  battery:   '#FFD700',
+  batSel:    '#FFFFFF',
+  pMissile:  '#FFD700',
+  pGlow:     '#B8860B',
+  eMissile:  '#FF3333',
+  eGlow:     '#AA0000',
+  bomber:    '#7B2FFF',
+  brand:     '#FFD700',
+  warn:      '#FF3300',
+  expPlayer: '#FFD700',
+  expEnemy:  '#FF5500',
+  cyan:      '#00D4FF',
+};
+
+// â”€â”€ AUDIO SYSTEM (Synthesized) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let ac = null;
+function initAudio() { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); }
+function playTone(freq, type, dur, vol, freqEnd=null) {
+  if (!ac) return;
+  try {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, ac.currentTime);
+    if (freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd, ac.currentTime + dur);
+    g.gain.setValueAtTime(vol, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    o.start(); o.stop(ac.currentTime + dur);
+  } catch(e) {}
+}
+
+const SFX = {
+  fire:    () => playTone(300, 'square', 0.15, 0.05, 100),
+  explode: () => { playTone(120, 'sawtooth', 0.3, 0.1, 40); setTimeout(()=>playTone(80,'square',0.4,0.1,20), 20); },
+  cityDie: () => { playTone(200, 'sawtooth', 0.8, 0.2, 30); setTimeout(()=>playTone(100,'sawtooth',1.0,0.2,20), 100); },
+  emp:     () => { playTone(800, 'sine', 1.0, 0.3, 50); playTone(150, 'sawtooth', 1.5, 0.4, 20); },
+  upgrade: () => playTone(800,'sine',0.1,0.1,1200),
+};
+
+// â”€â”€ GAME STATE & UPGRADES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const ST = { MENU:0, PLAY:1, STORE:2, OVER:3, PAUSED:4 };
+const BAT_X = [180, 475, 770];
+const CITY_X = [60, 310, 395, 555, 640, 890];
+
+const UPGRADE_DEF = {
+  yield: { name: "Yield Enhancer", desc: "+Explosion radius for intercepts.", baseCost: 1500, maxLvl: 5, valScale: 25 },
+  velocity: { name: "Velocity Drive", desc: "+Interceptor travel speed.", baseCost: 2000, maxLvl: 5, valScale: 100 },
+  mag: { name: "Mag-Feed", desc: "+Max ammo capacity per battery.", baseCost: 2500, maxLvl: 5, valScale: 2 },
+  emp: { name: "Aegis EMP", desc: "+1 EMP Charge (Spacebar to detonate all).", baseCost: 7500, maxLvl: 99, valScale: 1 },
+  cityRep: { name: "City Reconstruction", desc: "Rebuilds one destroyed datacenter.", baseCost: 5000, maxLvl: 99, valScale: 1 },
+  batRep: { name: "Battery Repair", desc: "Repairs one destroyed intercept grid.", baseCost: 3000, maxLvl: 99, valScale: 1 }
+};
+
+let gs = {
+  state: ST.MENU,
+  layer: 1, credits: 0,
+  multiplier: 1.0, 
+  perfectLayer: true,
+  emps: 0,
+  shake: 0, timeScale: 1.0,
+  showCrosshair: true,
+  upgrades: { yield: 0, velocity: 0, mag: 0 },
+  // Run stats (reset each run)
+  runIntercepts: 0,
+  runEmps: 0,
+};
+
+// â”€â”€ CAREER PROFILE (Persistent across ALL runs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const CAREER_KEY = 'vo_ks_career';
+const LB_KEY = 'vo_ks_leaderboard';
+
+let career = {
+  totalIntercepts: 0,
+  totalLayersCleared: 0,
+  totalCreditsEarned: 0,
+  highestLayer: 0,
+  flawlessLayers: 0,
+  empsUsed: 0,
+  runsCompleted: 0,
+  citiesSaved: 0,
+};
+
+function loadCareer() {
+  try {
+    const d = localStorage.getItem(CAREER_KEY);
+    if (d) Object.assign(career, JSON.parse(d));
+  } catch(e) {}
+}
+function saveCareer() {
+  localStorage.setItem(CAREER_KEY, JSON.stringify(career));
+}
+
+// â”€â”€ TROPHIES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const TROPHIES = [
+  { id: 'first_blood',   icon: 'ðŸ’¥', name: 'First Blood',      desc: 'Intercept 1 threat',         check: () => career.totalIntercepts >= 1 },
+  { id: 'interceptor',   icon: 'ðŸŽ¯', name: 'Interceptor',      desc: 'Intercept 50 threats',        check: () => career.totalIntercepts >= 50 },
+  { id: 'ace_gunner',    icon: 'â­',  name: 'Ace Gunner',       desc: 'Intercept 250 threats',       check: () => career.totalIntercepts >= 250 },
+  { id: 'shield_wall',   icon: 'ðŸ›¡ï¸', name: 'Shield Wall',      desc: 'Clear 5 layers in one run',   check: () => career.highestLayer >= 5 },
+  { id: 'commander',     icon: 'ðŸŒŸ', name: 'Commander',        desc: 'Reach layer 10',              check: () => career.highestLayer >= 10 },
+  { id: 'legend',        icon: 'ðŸ‘‘', name: 'Legend',           desc: 'Reach layer 20',              check: () => career.highestLayer >= 20 },
+  { id: 'flawless_1',    icon: 'ðŸ’Ž', name: 'Pristine',        desc: 'Complete 1 flawless layer',   check: () => career.flawlessLayers >= 1 },
+  { id: 'flawless_10',   icon: 'ðŸŒŒ', name: 'Untouchable',     desc: 'Complete 10 flawless layers', check: () => career.flawlessLayers >= 10 },
+  { id: 'emp_user',      icon: 'âš¡',  name: 'Aegis Protocol',   desc: 'Use an EMP',                  check: () => career.empsUsed >= 1 },
+  { id: 'veteran',       icon: 'ðŸŽ–ï¸', name: 'Veteran',          desc: 'Complete 5 runs',             check: () => career.runsCompleted >= 5 },
+  { id: 'millionaire',   icon: 'ðŸ’°', name: 'Millionaire',     desc: 'Earn 50,000 lifetime credits', check: () => career.totalCreditsEarned >= 50000 },
+  { id: 'guardian',      icon: 'ðŸ™ï¸', name: 'Guardian',         desc: 'Save 100 cities',             check: () => career.citiesSaved >= 100 },
+];
+
+// â”€â”€ LEADERBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function getLeaderboard() {
+  try { return JSON.parse(localStorage.getItem(LB_KEY)) || []; } catch(e) { return []; }
+}
+function addLeaderboardEntry(layer, credits) {
+  const lb = getLeaderboard();
+  lb.push({ layer, credits: Math.floor(credits), date: new Date().toLocaleDateString() });
+  lb.sort((a,b) => b.layer - a.layer || b.credits - a.credits);
+  localStorage.setItem(LB_KEY, JSON.stringify(lb.slice(0, 10)));
+}
+
+let cities = [], batteries = [], eMissiles = [], pMissiles = [], explosions = [], particles = [];
+let stars = [];
+let selBat = 1;
+
+// Initialize Stars
+for(let i=0; i<300; i++) {
+  stars.push({
+    x: Math.random()*W,
+    y: Math.random()*H,
+    r: Math.random()*1.2 + 0.3,
+    alpha: Math.random(),
+    speed: 0.2 + Math.random()*0.8
+  });
+}
+
+let wvCfg = { total: 0, spd: 0, interval: 0 };
+let spawnT = 0, spawned = 0;
+let lastT = 0;
+
+// â”€â”€ PERSISTENT SAVES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function saveGame() {
+  const saveObj = {
+    l: gs.layer, c: gs.credits, m: gs.multiplier, e: gs.emps, u: gs.upgrades,
+    cv: cities.map(c=>c.alive), bv: batteries.map(b=>b.ammo) // if ammo 0 or dead, stores 0. alive checks via ammo>0 or flag
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(saveObj));
+}
+function loadGame() {
+  const d = localStorage.getItem(SAVE_KEY);
+  if (!d) return false;
+  try {
+    const o = JSON.parse(d);
+    gs.layer = o.l || 1; gs.credits = o.c || 0; gs.multiplier = o.m || 1.0; 
+    gs.emps = o.e || 0; gs.upgrades = o.u || { yield:0, velocity:0, mag:0 };
+    cities = CITY_X.map((x,i) => ({ x, y:GROUND_Y, alive: o.cv[i], height: Math.random()*20+15 }));
+    batteries = BAT_X.map((x,i) => {
+      const maxA = 10 + (gs.upgrades.mag * UPGRADE_DEF.mag.valScale);
+      return { x, y:GROUND_Y, maxAmmo: maxA, ammo: o.bv[i] > 0 ? maxA : 0, alive: o.bv[i] > 0 }; // always refill on load
+    });
+    return true;
+  } catch(e) { return false; }
+}
+function clearSave() { localStorage.removeItem(SAVE_KEY); }
+
+// â”€â”€ INITIALIZATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function getBaseStats() {
+  return {
+    expR: 70 + (gs.upgrades.yield * UPGRADE_DEF.yield.valScale),
+    spd: 400 + (gs.upgrades.velocity * UPGRADE_DEF.velocity.valScale),
+    maxA: 10 + (gs.upgrades.mag * UPGRADE_DEF.mag.valScale)
+  };
+}
+
+function initRun(fresh) {
+  if (fresh) {
+    gs.layer = 1; gs.credits = 0; gs.multiplier = 1.0; gs.emps = 0;
+    gs.upgrades = { yield:0, velocity:0, mag:0 };
+    gs.runIntercepts = 0; gs.runEmps = 0;
+    const st = getBaseStats();
+    cities = CITY_X.map(x => ({ x, y:GROUND_Y, alive:true, height: Math.random()*20+15 }));
+    batteries = BAT_X.map(x => ({ x, y:GROUND_Y, alive:true, ammo: st.maxA, maxAmmo: st.maxA }));
+    clearSave();
+  }
+  updateHUD();
+  document.querySelectorAll('.menu-panel').forEach(m=>m.classList.remove('active'));
+  document.getElementById('hud').style.display = 'flex';
+  startLayer();
+}
+
+function calcLayerConfig() {
+  const l = gs.layer;
+  return {
+    total: Math.min(8 + Math.floor(l*2.5), 60),
+    spd: Math.min(60 + l*12, 350),
+    interval: Math.max(2500 - l*150, 400),
+    bomberChance: l > 3 ? 0.15 : 0
+  };
+}
+
+function startLayer() {
+  wvCfg = calcLayerConfig();
+  spawnT = 0; spawned = 0;
+  eMissiles = []; pMissiles = []; explosions = []; particles = [];
+  gs.perfectLayer = true;
+  
+  const st = getBaseStats();
+  batteries.forEach(b => { if (b.alive) { b.maxAmmo = st.maxA; b.ammo = st.maxA; } });
+  
+  gs.state = ST.PLAY;
+  
+  // Announce
+  const ann = document.getElementById('announcer');
+  ann.innerText = `AUDIT LAYER ${String(gs.layer).padStart(2,'0')}`;
+  ann.style.opacity = '1'; ann.style.transform = 'translateY(0)';
+  setTimeout(() => { ann.style.opacity = '0'; ann.style.transform = 'translateY(20px)'; }, 2000);
+}
+
+// â”€â”€ DOM UI / UPDATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function updateHUD() {
+  document.getElementById('hudScore').innerText = Math.floor(gs.credits).toLocaleString();
+  document.getElementById('hudWave').innerText = String(gs.layer).padStart(2,'0');
+  
+  // Cities
+  const aliveC = cities.filter(c=>c.alive).length;
+  document.getElementById('hudCities').innerText = 'â–®'.repeat(aliveC) + 'â–¯'.repeat(6-aliveC);
+  document.getElementById('hudCities').style.color = aliveC>2 ? '#00ffaa' : '#FF3333';
+
+  // Multiplier
+  const mulUI = document.getElementById('hudMultiplier');
+  if (gs.multiplier > 1.0) { mulUI.style.display = 'block'; mulUI.innerText = `REVENUE MULTIPLIER: ${gs.multiplier.toFixed(1)}x`; }
+  else mulUI.style.display = 'none';
+
+  // EMP
+  const empUI = document.getElementById('hudEMP');
+  if (gs.emps > 0) { empUI.style.display = 'block'; empUI.innerText = `AEGIS EMPS: ${gs.emps} (SPACEBAR)`; }
+  else empUI.style.display = 'none';
+}
+
+function showStore() {
+  gs.state = ST.STORE;
+  document.getElementById('menu-upgrade').classList.add('active');
+  
+  // Flawless check
+  const upgFBonus = document.getElementById('upgFBonus');
+  if (gs.perfectLayer) {
+    if (gs.multiplier < 3.0) gs.multiplier = Math.min(3.0, gs.multiplier + 0.5);
+    upgFBonus.innerText = `FLAWLESS! Multiplier increased to ${gs.multiplier.toFixed(1)}x`;
+    career.flawlessLayers++;
+  } else {
+    gs.multiplier = 1.0;
+    upgFBonus.innerText = `Breach detected. Multiplier reset.`;
+  }
+  
+  // Bonus credits for ammo
+  let ammoBonus = batteries.reduce((s,b)=>s+(b.alive?b.ammo:0),0) * 10 * gs.multiplier;
+  gs.credits += ammoBonus;
+
+  career.totalLayersCleared++;
+  saveCareer();
+  saveGame();
+  renderStore();
+}
+
+function renderStore() {
+  document.getElementById('upgCredits').innerText = Math.floor(gs.credits).toLocaleString();
+  const grid = document.querySelector('.store-grid');
+  grid.innerHTML = '';
+
+  const cAlive = cities.filter(c=>c.alive).length;
+  const bAlive = batteries.filter(b=>b.alive).length;
+
+  for (const [key, t] of Object.entries(UPGRADE_DEF)) {
+    const lvl = gs.upgrades[key] || 0;
+    let cost = t.baseCost * (lvl+1);
+    
+    // Special conditions
+    let disabled = false;
+    let btnText = `BUY [${cost.toLocaleString()}]`;
+
+    if (key === 'cityRep') { if (cAlive === 6) disabled=true; }
+    if (key === 'batRep') { if (bAlive === 3) disabled=true; }
+    if (key !== 'emp' && key !== 'cityRep' && key !== 'batRep' && lvl >= t.maxLvl) { disabled=true; btnText='MAX'; }
+
+    if (gs.credits < cost && !disabled) disabled = true;
+
+    let d = document.createElement('div'); d.className = 'upgrade-item';
+    d.innerHTML = `
+      <div class="u-name">${t.name} <span class="u-lvl">${key==='emp'||key==='cityRep'||key==='batRep'?'':`LVL ${lvl}/${t.maxLvl}`}</span></div>
+      <div class="u-desc">${t.desc}</div>
+      <button class="btn" style="margin:0;" ${disabled?'disabled':''}>${btnText}</button>
+    `;
+    const btn = d.querySelector('button');
+    btn.onclick = () => {
+      if (gs.credits >= cost && !btn.disabled) {
+        gs.credits -= cost;
+        SFX.upgrade();
+        if (key === 'emp') gs.emps++;
+        else if (key === 'cityRep') { let c=cities.find(x=>!x.alive); if(c)c.alive=true; }
+        else if (key === 'batRep') { let b=batteries.find(x=>!x.alive); if(b){b.alive=true; b.ammo=getBaseStats().maxA; b.maxAmmo=getBaseStats().maxA;} }
+        else gs.upgrades[key]++;
+        saveGame();
+        renderStore();
+      }
+    };
+    grid.appendChild(d);
+  }
+}
+
+function doGameOver() {
+  gs.state = ST.OVER;
+  // Update career stats
+  career.highestLayer = Math.max(career.highestLayer, gs.layer);
+  career.citiesSaved += cities.filter(c => c.alive).length;
+  career.runsCompleted++;
+  saveCareer();
+  addLeaderboardEntry(gs.layer, gs.credits);
+  clearSave();
+  document.getElementById('menu-gameover').classList.add('active');
+  document.getElementById('goLayers').innerText = gs.layer;
+}
+
+// â”€â”€ ENTITY LOGIC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function spawnEnemy() {
+  const tgts = [...cities, ...batteries].filter(t=>t.alive);
+  if (!tgts.length) return;
+  const t = tgts[Math.floor(Math.random()*tgts.length)];
+  const sx = Math.random()*W, sy = -20;
+  const tx = t.x + (Math.random()*20-10);
+  const time = Math.max(0.001, Math.hypot(tx-sx, GROUND_Y-sy) / (wvCfg.spd * (0.8+Math.random()*0.4)));
+  eMissiles.push({
+    x:sx, y:sy, vx:(tx-sx)/time, vy:(GROUND_Y-sy)/time,
+    tx, alive:true, trail:[]
+  });
+  spawned++;
+}
+
+function fire(batIdx, px, py) {
+  const b = batteries[batIdx];
+  if (!b || !b.alive || b.ammo<=0) return;
+  b.ammo--; SFX.fire(); updateHUD();
+  const st = getBaseStats();
+  const time = Math.max(0.001, Math.hypot(px-b.x, py-b.y) / st.spd);
+  pMissiles.push({
+    x:b.x, y:b.y-10, vx:(px-b.x)/time, vy:(py-b.y)/time, tx:px, ty:py,
+    radius: st.expR, alive:true, trail:[], prevDist: Infinity
+  });
+}
+
+function triggerEMP() {
+  if (gs.emps <= 0 || gs.state !== ST.PLAY) return;
+  gs.emps--; gs.runEmps++; career.empsUsed++; SFX.emp(); updateHUD();
+  const f = document.getElementById('flash');
+  f.style.transition = 'none'; f.style.opacity = '1';
+  setTimeout(() => { f.style.transition = 'opacity 0.8s'; f.style.opacity = '0'; }, 50);
+  gs.shake = 20;
+  
+  eMissiles.forEach(m => {
+    if (m.alive) {
+      m.alive = false; createExplosion(m.x, m.y, 40, true);
+      addCredits(25);
+    }
+  });
+}
+
+function addCredits(base) {
+  const earned = base * gs.multiplier;
+  gs.credits += earned;
+  career.totalCreditsEarned += earned;
+  career.totalIntercepts++;
+  gs.runIntercepts++;
+  updateHUD();
+}
+
+function createExplosion(cx, cy, maxR, isPl) {
+  explosions.push({ cx,cy, r:0, maxR, dur:800+maxR*3, t:0, isPl, alive:true });
+}
+
+function checkExplosionHits(e) {
+  eMissiles.forEach(m => {
+    if (m.alive && Math.hypot(m.x-e.cx, m.y-e.cy) <= e.r) {
+      m.alive = false; addCredits(50);
+      sparkle(m.x, m.y, P.eGlow, 10);
+    }
+  });
+}
+
+function hitGround(mx) {
+  cities.forEach(c => { if(c.alive && Math.abs(c.x-mx)<35) { c.alive=false; handleCityDeath(c); } });
+  batteries.forEach(b => { if(b.alive && Math.abs(b.x-mx)<25) { b.alive=false; handleBatDeath(b); } });
+}
+
+function handleCityDeath(c) {
+  SFX.cityDie(); gs.shake = 15; gs.perfectLayer = false;
+  createExplosion(c.x, c.y-10, 60, false); sparkle(c.x, c.y, P.city, 30); updateHUD();
+}
+function handleBatDeath(b) {
+  SFX.cityDie(); gs.shake = 10;
+  createExplosion(b.x, b.y, 40, false); sparkle(b.x, b.y, P.battery, 20); updateHUD();
+}
+
+function sparkle(x,y,col,n) {
+  for(let i=0;i<n;i++) {
+    const a = Math.random()*Math.PI*2, s=50+Math.random()*150;
+    particles.push({ x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s-50, life:0.4+Math.random()*0.4, maxLife:0.8, col, r:1+Math.random()*2 });
+  }
+}
+
+// â”€â”€ UPDATE LOOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function update(realDt) {
+  // Adrenaline Dilation Logic â€” only triggers on very close calls
+  let nearMiss = false;
+  eMissiles.forEach(m => {
+    if (m.alive && m.y > GROUND_Y - 60) {
+      // Check if heading toward a living city
+      const nearCity = cities.some(c => c.alive && Math.abs(c.x - m.x) < 50);
+      if (nearCity) nearMiss = true;
+    }
+  });
+  const targetScale = nearMiss ? 0.5 : 1.0;
+  gs.timeScale += (targetScale - gs.timeScale) * 0.15;
+  
+  const dt = (realDt/1000) * gs.timeScale;
+  gs.shake *= 0.8;
+
+  // Redline UI hook
+  if (nearMiss && gs.perfectLayer) document.getElementById('redlineGlow').classList.add('active');
+  else document.getElementById('redlineGlow').classList.remove('active');
+
+  // Spawning
+  spawnT += realDt;
+  if (spawnT > wvCfg.interval && spawned < wvCfg.total) { spawnT=0; spawnEnemy(); }
+
+  // Enemy Move
+  eMissiles.forEach(m => {
+    if(!m.alive) return;
+    m.trail.unshift({x:m.x, y:m.y}); if(m.trail.length>12) m.trail.pop();
+    m.x += m.vx*dt; m.y += m.vy*dt;
+    if (m.y >= GROUND_Y) {
+      m.alive=false; hitGround(m.x); createExplosion(m.x, GROUND_Y, 45, false); SFX.explode();
+    }
+  });
+  eMissiles = eMissiles.filter(m=>m.alive);
+
+  // Player Move â€” robust "past-the-target" detonation
+  pMissiles.forEach(p => {
+    if(!p.alive) return;
+    p.trail.unshift({x:p.x, y:p.y}); if(p.trail.length>8) p.trail.pop();
+    p.x += p.vx*dt; p.y += p.vy*dt;
+    const dist = Math.hypot(p.tx-p.x, p.ty-p.y);
+    // Detonate if: close enough, overshot (distance increasing), or NaN
+    if (dist < 15 || dist > p.prevDist || isNaN(p.x)) {
+      p.alive=false; createExplosion(p.tx, p.ty, p.radius, true); SFX.explode();
+    }
+    p.prevDist = dist;
+  });
+  pMissiles = pMissiles.filter(p=>p.alive);
+
+  // Explosions â€” use REAL time so they grow fast even during slow-mo
+  explosions.forEach(e => {
+    e.t += realDt;
+    // Pop quickly to 70% then ease to full
+    const growProgress = Math.min(e.t / (e.dur * 0.15), 1);
+    e.r = e.maxR * growProgress;
+    checkExplosionHits(e); // continuously check for intercept
+    if (e.t >= e.dur) e.alive=false;
+  });
+  explosions = explosions.filter(e=>e.alive);
+
+  // Particles
+  particles.forEach(p => { p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=200*dt; p.life-=dt; });
+  particles = particles.filter(p=>p.life>0);
+
+  // Win/Loss
+  if (spawned >= wvCfg.total && eMissiles.length===0 && pMissiles.length===0 && explosions.length===0) {
+    if (cities.some(c=>c.alive)) showStore();
+    else doGameOver();
+  } else if (cities.every(c=>!c.alive)) {
+    doGameOver();
+  }
+}
+
+// â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  
+  let scX=0, scY=0;
+  if (gs.shake>0.5) { scX=(Math.random()-0.5)*gs.shake; scY=(Math.random()-0.5)*gs.shake; }
+  ctx.save(); ctx.translate(scX, scY);
+
+  // Deep space background with radial vignette
+  const bgGrad = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, ~~(Math.max(W, H)*0.8));
+  bgGrad.addColorStop(0, '#0F0F0F');
+  bgGrad.addColorStop(1, '#020202');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+  
+  // Twinkling Starfield
+  ctx.fillStyle = '#FFFFFF';
+  stars.forEach(s => {
+    s.alpha += s.speed * 0.05 * (Math.random() > 0.5 ? 1 : -1);
+    if(s.alpha > 1) s.alpha = 1;
+    if(s.alpha < 0.1) s.alpha = 0.1;
+    ctx.globalAlpha = s.alpha;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // Ground
+  ctx.fillStyle = '#0A0A0A';
+  ctx.fillRect(0, GROUND_Y, W, H-GROUND_Y);
+  ctx.strokeStyle = 'rgba(255,215,0,0.2)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, GROUND_Y); ctx.lineTo(W, GROUND_Y); ctx.stroke();
+  
+  // Data Grid lines (Perspective)
+  ctx.globalAlpha=0.1; ctx.strokeStyle=P.brand;
+  for(let x=20; x<W; x+=40) { ctx.beginPath(); ctx.moveTo(x,GROUND_Y); ctx.lineTo(W/2+(x-W/2)*2, H+50); ctx.stroke(); }
+  ctx.globalAlpha=1;
+
+  // Cities (Sleeker 2026 design)
+  cities.forEach(c => {
+    if (!c.alive) {
+      ctx.fillStyle='rgba(20,20,20,0.8)'; ctx.fillRect(c.x-20, GROUND_Y-10, 40, 10);
+      ctx.strokeStyle='#333'; ctx.strokeRect(c.x-20, GROUND_Y-10, 40, 10);
+      return; 
+    }
+    // High-tech glassmorphism fill
+    const cg = ctx.createLinearGradient(0, GROUND_Y-c.height-10, 0, GROUND_Y);
+    cg.addColorStop(0, 'rgba(0,212,255,0.8)');
+    cg.addColorStop(1, 'rgba(0,100,150,0.3)');
+    ctx.shadowBlur=15; ctx.shadowColor='rgba(0,212,255,0.6)'; ctx.fillStyle=cg;
+    ctx.fillRect(c.x-15, GROUND_Y-c.height, 10, c.height);
+    ctx.fillRect(c.x-2, GROUND_Y-(c.height+10), 15, c.height+10);
+    ctx.fillRect(c.x+15, GROUND_Y-(c.height-5), 8, c.height-5);
+    // Detail lines
+    ctx.shadowBlur=0; ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1;
+    ctx.strokeRect(c.x-15, GROUND_Y-c.height, 10, c.height);
+    ctx.strokeRect(c.x-2, GROUND_Y-(c.height+10), 15, c.height+10);
+    ctx.strokeRect(c.x+15, GROUND_Y-(c.height-5), 8, c.height-5);
+  });
+
+  // Batteries (Gold/Obsidian styling)
+  batteries.forEach((b,i) => {
+    if (!b.alive) { ctx.fillStyle='#111'; ctx.beginPath(); ctx.lineTo(b.x-25, GROUND_Y); ctx.lineTo(b.x, GROUND_Y-18); ctx.lineTo(b.x+25, GROUND_Y); ctx.fill(); return; }
+    const isSel = (selBat===i);
+    const glowCol = isSel ? 'rgba(255,255,255,0.8)' : 'rgba(255,215,0,0.5)';
+    const trimCol = isSel ? '#FFFFFF' : '#FFD700';
+
+    ctx.shadowBlur = isSel?20:10; ctx.shadowColor = glowCol; 
+    ctx.fillStyle = 'rgba(10,10,10,0.9)'; // Obsidian base
+    
+    // Pyramid Base
+    ctx.beginPath(); ctx.moveTo(b.x-25, GROUND_Y); ctx.lineTo(b.x-15, GROUND_Y-18);
+    ctx.lineTo(b.x+15, GROUND_Y-18); ctx.lineTo(b.x+25, GROUND_Y); ctx.fill();
+    ctx.shadowBlur=0;
+    
+    // Gold trim
+    ctx.strokeStyle = trimCol; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(b.x-25, GROUND_Y); ctx.lineTo(b.x-15, GROUND_Y-18);
+    ctx.lineTo(b.x+15, GROUND_Y-18); ctx.lineTo(b.x+25, GROUND_Y); ctx.closePath(); ctx.stroke();
+    
+    // Barrel
+    let ang = isSel ? Math.atan2(my-(GROUND_Y-18), mx-b.x) : -Math.PI*0.5;
+    if(ang>-0.1) ang=-0.1; if(ang<-Math.PI+0.1) ang=-Math.PI+0.1;
+    ctx.strokeStyle=trimCol; ctx.lineWidth=5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(b.x, GROUND_Y-15); ctx.lineTo(b.x+Math.cos(ang)*24, GROUND_Y-15+Math.sin(ang)*24); ctx.stroke();
+    // Inner barrel line
+    ctx.strokeStyle='#111'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(b.x, GROUND_Y-15); ctx.lineTo(b.x+Math.cos(ang)*22, GROUND_Y-15+Math.sin(ang)*22); ctx.stroke();
+    
+    // Ammo Bar
+    if (b.ammo > 0) {
+      const w=40, h=5; ctx.fillStyle='#0A0A0A'; ctx.fillRect(b.x-20, GROUND_Y+8, w, h);
+      ctx.strokeStyle='rgba(255,215,0,0.3)'; ctx.lineWidth=1; ctx.strokeRect(b.x-20, GROUND_Y+8, w, h);
+      // Segmented cyan bar
+      const fillW = w*(b.ammo/b.maxAmmo);
+      ctx.fillStyle='#00D4FF'; ctx.fillRect(b.x-19, GROUND_Y+9, Math.max(0, fillW-2), h-2);
+    }
+  });
+
+  // Enemy Missiles
+  eMissiles.forEach(m => {
+    // Tapered trail
+    const tg = ctx.createLinearGradient(m.trail[m.trail.length-1]?.x??m.x, m.trail[m.trail.length-1]?.y??m.y, m.x, m.y);
+    tg.addColorStop(0, 'rgba(255,51,51,0)');
+    tg.addColorStop(1, 'rgba(255,51,51,0.8)');
+    ctx.strokeStyle = tg; ctx.lineWidth = 3;
+    ctx.lineCap='round';
+    ctx.beginPath();
+    for(let i=0;i<m.trail.length;i++) {
+      if(i===0) ctx.moveTo(m.x, m.y); else ctx.lineTo(m.trail[i].x, m.trail[i].y);
+    }
+    ctx.stroke(); 
+    
+    // Hot core
+    ctx.shadowBlur=12; ctx.shadowColor='#FF0000'; ctx.fillStyle='#FFFFFF';
+    ctx.beginPath(); ctx.arc(m.x, m.y, 2.5, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+  });
+
+  // Player Missiles â€” only draw target X and trail for in-flight missiles
+  pMissiles.forEach(p => {
+    // Target X marker
+    ctx.globalAlpha = 0.8;
+    ctx.strokeStyle = 'rgba(0,212,255,0.7)'; ctx.lineWidth = 2; // Cyan targets
+    ctx.beginPath(); ctx.moveTo(p.tx-6,p.ty-6); ctx.lineTo(p.tx+6,p.ty+6);
+    ctx.moveTo(p.tx+6,p.ty-6); ctx.lineTo(p.tx-6,p.ty+6); ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Tapered Trail
+    const tg = ctx.createLinearGradient(p.trail[p.trail.length-1]?.x??p.x, p.trail[p.trail.length-1]?.y??p.y, p.x, p.y);
+    tg.addColorStop(0, 'rgba(255,215,0,0)');
+    tg.addColorStop(1, 'rgba(255,215,0,0.9)');
+    ctx.strokeStyle = tg; ctx.lineWidth = 3;
+    ctx.lineCap='round';
+    ctx.beginPath();
+    for(let i=0;i<p.trail.length;i++) {
+      if(i===0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.trail[i].x, p.trail[i].y);
+    }
+    ctx.stroke(); 
+    
+    // Core
+    ctx.shadowBlur=15; ctx.shadowColor=P.pGlow; ctx.fillStyle='#FFFFFF';
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+  });
+
+  // Explosions â€” MASSIVE, bright shield domes
+  explosions.forEach(e => {
+    if(e.r<2) return;
+    const progress = e.t/e.dur;
+    const a = Math.max(0, 1 - progress*0.7);
+
+    // Outer glow halo
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = e.isPl ? 'rgba(255,215,0,0.8)' : 'rgba(255,60,30,0.8)';
+
+    // Solid filled core â€” 60% of radius is opaque
+    const coreR = e.r * 0.6;
+    ctx.globalAlpha = a * 0.5;
+    ctx.fillStyle = e.isPl ? '#FFD700' : '#FF4422';
+    ctx.beginPath(); ctx.arc(e.cx, e.cy, coreR, 0, Math.PI*2); ctx.fill();
+
+    // Gradient halo from core to edge
+    ctx.globalAlpha = 1;
+    const gr = ctx.createRadialGradient(e.cx,e.cy, coreR*0.5, e.cx,e.cy, e.r);
+    if (e.isPl) {
+      gr.addColorStop(0, `rgba(255,255,220,${a*0.9})`);
+      gr.addColorStop(0.3, `rgba(255,215,0,${a*0.7})`);
+      gr.addColorStop(0.7, `rgba(200,150,0,${a*0.3})`);
+      gr.addColorStop(1, 'rgba(120,80,0,0)');
+    } else {
+      gr.addColorStop(0, `rgba(255,200,150,${a*0.9})`);
+      gr.addColorStop(0.3, `rgba(255,60,30,${a*0.7})`);
+      gr.addColorStop(0.7, `rgba(180,0,0,${a*0.3})`);
+      gr.addColorStop(1, 'rgba(80,0,0,0)');
+    }
+    ctx.fillStyle = gr;
+    ctx.beginPath(); ctx.arc(e.cx, e.cy, e.r, 0, Math.PI*2); ctx.fill();
+
+    // Thick bright ring border
+    if (progress < 0.7) {
+      ctx.strokeStyle = e.isPl ? `rgba(255,215,0,${a})` : `rgba(255,80,40,${a})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(e.cx, e.cy, e.r, 0, Math.PI*2); ctx.stroke();
+    }
+
+    // White-hot center dot
+    if (progress < 0.4) {
+      ctx.globalAlpha = a;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(e.cx, e.cy, 6, 0, Math.PI*2); ctx.fill();
+    }
+
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+  });
+
+  // Particles
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life/p.maxLife; ctx.fillStyle=p.col;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  // Crosshair preview â€” only when enabled and cursor is within the playfield
+  if (gs.showCrosshair && gs.state===ST.PLAY && mx > 0 && mx < W && my > 0 && my < GROUND_Y) {
+    const r = getBaseStats().expR;
+    ctx.strokeStyle = P.pMissile; ctx.globalAlpha = 0.2;
+    ctx.beginPath(); ctx.arc(mx, my, r, 0, Math.PI*2); ctx.stroke();
+    // Crosshair lines
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(mx-12, my); ctx.lineTo(mx+12, my);
+    ctx.moveTo(mx, my-12); ctx.lineTo(mx, my+12);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+}
+
+function loop(ts) {
+  let dt = ts - lastT; lastT = ts;
+  if (dt>100) dt=16; // lag spike cap
+
+  if (gs.state === ST.PLAY) update(dt);
+  if (gs.state !== ST.MENU) draw();
+
+  requestAnimationFrame(loop);
+}
+
+// â”€â”€ INPUTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let mx=W/2, my=H/2;
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const sX = canvas.width / r.width;
+  const sY = canvas.height / r.height;
+  return { x: (e.clientX - r.left)*sX, y: (e.clientY-r.top)*sY };
+}
+
+canvas.addEventListener('mousemove', e => { const p=getPos(e); mx=p.x; my=p.y; });
+canvas.addEventListener('mousedown', e => {
+  initAudio();
+  if (gs.state !== ST.PLAY) return;
+  const p=getPos(e);
+  if (p.y >= GROUND_Y-10) return;
+  let b = selBat;
+  if (!batteries[b] || !batteries[b].alive || batteries[b].ammo<=0) {
+    // auto select logic
+    let best=-1, bD=Infinity;
+    batteries.forEach((bat,i)=>{
+      if (bat.alive && bat.ammo>0) { const d=Math.hypot(p.x-bat.x, p.y-bat.y); if(d<bD){bD=d; best=i;} }
+    });
+    if(best>=0) b = best; else return;
+  }
+  selBat = b;
+  fire(b, p.x, p.y);
+});
+
+document.addEventListener('keydown', e => {
+  if (gs.state !== ST.PLAY) return;
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    gs.state = ST.PAUSED;
+    document.getElementById('menu-pause').classList.add('active');
+  }
+  if (e.key === '1') selBat=0;
+  if (e.key === '2') selBat=1;
+  if (e.key === '3') selBat=2;
+  if (e.key === ' ') triggerEMP();
+});
+
+// UI Bindings
+document.getElementById('btnNewGame').onclick = () => { initAudio(); initRun(true); };
+document.getElementById('btnContinue').onclick = () => { initAudio(); initRun(false); };
+document.getElementById('btnNextWave').onclick = () => { 
+  initAudio(); gs.layer++; document.getElementById('menu-upgrade').classList.remove('active'); startLayer(); 
+};
+document.getElementById('btnRestart').onclick = () => { 
+  initAudio(); document.getElementById('menu-gameover').classList.remove('active');
+  document.getElementById('hud').style.display='none';
+  document.getElementById('menu-main').classList.add('active');
+  renderHomeScreen();
+  if (loadGame()) document.getElementById('btnContinue').style.display = 'inline-block';
+  else document.getElementById('btnContinue').style.display = 'none';
+};
+document.getElementById('btnResume').onclick = () => { 
+  initAudio(); document.getElementById('menu-pause').classList.remove('active'); gs.state = ST.PLAY; 
+};
+
+// Settings: Crosshair toggle
+const chkCrosshair = document.getElementById('chkCrosshair');
+const savedCrosshair = localStorage.getItem('vo_ks_crosshair');
+if (savedCrosshair !== null) {
+  gs.showCrosshair = savedCrosshair === 'true';
+  chkCrosshair.checked = gs.showCrosshair;
+}
+chkCrosshair.addEventListener('change', () => {
+  gs.showCrosshair = chkCrosshair.checked;
+  localStorage.setItem('vo_ks_crosshair', gs.showCrosshair);
+});
+
+// â”€â”€ HOME SCREEN RENDERING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function renderHomeScreen() {
+  renderCareerStats();
+  renderTrophies();
+  renderLeaderboard();
+}
+
+function renderCareerStats() {
+  const stats = [
+    { val: career.highestLayer, lbl: 'Best Layer' },
+    { val: career.totalIntercepts, lbl: 'Intercepts' },
+    { val: Math.floor(career.totalCreditsEarned).toLocaleString(), lbl: 'Credits Earned' },
+    { val: career.totalLayersCleared, lbl: 'Layers Cleared' },
+    { val: career.flawlessLayers, lbl: 'Flawless Layers' },
+    { val: career.runsCompleted, lbl: 'Runs' },
+  ];
+  const grid = document.getElementById('careerGrid');
+  grid.innerHTML = stats.map(s => `
+    <div class="career-stat">
+      <div class="val">${s.val}</div>
+      <div class="lbl">${s.lbl}</div>
+    </div>
+  `).join('');
+}
+
+function renderTrophies() {
+  const grid = document.getElementById('trophyGrid');
+  const unlocked = TROPHIES.filter(t => t.check()).length;
+  grid.innerHTML = TROPHIES.map(t => {
+    const u = t.check();
+    return `
+      <div class="trophy-card ${u ? 'unlocked' : ''}">
+        <div class="icon">${t.icon}</div>
+        <div class="name">${t.name}</div>
+        <div class="req">${t.desc}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderLeaderboard() {
+  const lb = getLeaderboard();
+  const container = document.getElementById('leaderboardContainer');
+  if (!lb.length) {
+    container.innerHTML = '<div class="lb-empty">No runs recorded yet.<br>Complete a run to appear on the board.</div>';
+    return;
+  }
+  const ranks = ['ðŸ¥‡','ðŸ¥ˆ','ðŸ¥‰'];
+  container.innerHTML = `
+    <table class="lb-table">
+      <thead><tr><th></th><th>Layer</th><th>Credits</th><th>Date</th></tr></thead>
+      <tbody>
+        ${lb.map((e,i) => `
+          <tr>
+            <td class="lb-rank">${ranks[i] || (i+1)}</td>
+            <td>${e.layer}</td>
+            <td>${e.credits.toLocaleString()}</td>
+            <td style="color:#666; font-size:11px;">${e.date}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// Tab navigation
+document.querySelectorAll('.home-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.home-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.home-tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// â”€â”€ BOOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+loadCareer();
+document.getElementById('hud').style.display='none';
+if (loadGame()) document.getElementById('btnContinue').style.display = 'inline-block';
+renderHomeScreen();
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
