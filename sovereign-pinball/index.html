@@ -169,10 +169,23 @@
                     document.getElementById("canvas").dispatchEvent(keyC);
                 }
             });
+            var GAME_SOUND_ENABLED = true;
+
             document.addEventListener("keyup", function(event) {
                 if (event.key === "/") {
                     const keyC = new KeyboardEvent("keyup", { key: "c", code: "KeyC", which: 67, keyCode: 67, bubbles: true, cancelable: true });
                     document.getElementById("canvas").dispatchEvent(keyC);
+                }
+                else if (event.key === "F2") {
+                    const keyR = new KeyboardEvent("keyup", { key: "r", code: "KeyR", which: 82, keyCode: 82, bubbles: true, cancelable: true });
+                    document.getElementById("canvas").dispatchEvent(keyR);
+                }
+                else if (event.key === "m" || event.key === "M") {
+                    GAME_SOUND_ENABLED = !GAME_SOUND_ENABLED;
+                    try {
+                        if (!GAME_SOUND_ENABLED) { Module.SDL2.audioContext.suspend(); }
+                        else { Module.SDL2.audioContext.resume(); }
+                    } catch(err) {}
                 }
             });
 
