@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Sovereign Orbit — Competitive Confinement. VERITAS OMEGA.">
 <title>SOVEREIGN ORBIT — VERITAS OMEGA</title>
 <style>
@@ -24,7 +24,7 @@
   
   /* CRITICAL AESTHETICS: CRT & Grid */
   .viewport {
-    position: relative; width: 100vw; height: 100vh;
+    position: relative; width: 100vw; height: 100dvh;
     display: flex; justify-content: center; align-items: center;
     perspective: 1200px; /* 3D perspective wrap */
   }
@@ -36,7 +36,7 @@
                 inset 0 0 60px rgba(0, 0, 0, 0.8);
     border-radius: 50%; /* It's a radial grid */
     border: 1px solid rgba(255,215,0,0.1);
-    max-width: 100vw; max-height: 100vh;
+    max-width: 100vw; max-height: 100dvh;
     aspect-ratio: 1/1;
   }
 
@@ -186,7 +186,7 @@
   </div>
 </div>
 
-<script>
+<script defer>
 // ── CAREER / META SYSTEMS ──────────────────────────────
 const CAREER_KEY = 'vo_so_career', LB_KEY = 'vo_so_lb';
 let orbitCareer = { wins:0, losses:0, totalGames:0, longestRally:0, totalRallies:0, perfectGames:0, maxSpeed:0, sweeps:0 };
@@ -678,7 +678,7 @@ window.addEventListener('mousemove', e => {
   player.theta = ang;
 });
 
-window.addEventListener('mousedown', e => {
+window.addEventListener('pointerdown', e => {
   if (state === 'PLAY' && holdingBall && turn === 1) {
     holdingBall = false;
     shootPayload();

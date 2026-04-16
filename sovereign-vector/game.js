@@ -3,8 +3,12 @@ const ctx = canvas.getContext('2d');
 const CELL_SIZE = 22;
 const MAP_COLS = 28;
 const MAP_ROWS = 31;
-canvas.width = MAP_COLS * CELL_SIZE;  // 616
-canvas.height = MAP_ROWS * CELL_SIZE; // 682
+const dpr = window.devicePixelRatio || 1;
+canvas.width = MAP_COLS * CELL_SIZE * dpr;
+canvas.style.width = (MAP_COLS * CELL_SIZE) + "px";
+canvas.height = MAP_ROWS * CELL_SIZE * dpr;
+canvas.style.height = (MAP_ROWS * CELL_SIZE) + "px";
+ctx.scale(dpr, dpr);
 
 // UI Elements
 const uiScore = document.getElementById('ui-score');

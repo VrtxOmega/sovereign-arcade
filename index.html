@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:;">
 <title>SOVEREIGN ARCADE — VERITAS OMEGA</title>
@@ -565,7 +566,7 @@ html, body {
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── RESPONSIVE ─────────────────────────────────────────── */
-@media (max-width: 1300px) {
+@media (max-width: 1024px) {
   .hero-art { display: none; }
   .hero-title { font-size: 32px; }
 }
@@ -761,7 +762,7 @@ html, body {
 <!-- Toast notification -->
 <div id="toast"></div>
 
-<script>
+<script defer>
 // ════════════════════════════════════════════════════════════════
 //   SOVEREIGN ARCADE — Hub Runtime v1.0.0
 //   Gold-and-Obsidian · VERITAS Ω · 2026

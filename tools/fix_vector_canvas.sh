@@ -1,0 +1,2 @@
+sed -i 's/canvas.width = MAP_COLS \* CELL_SIZE;  \/\/ 616/const dpr = window.devicePixelRatio || 1;\ncanvas.width = MAP_COLS * CELL_SIZE * dpr;\ncanvas.style.width = (MAP_COLS * CELL_SIZE) + "px";/' sovereign-vector/game.js
+sed -i 's/canvas.height = MAP_ROWS \* CELL_SIZE; \/\/ 682/canvas.height = MAP_ROWS * CELL_SIZE * dpr;\ncanvas.style.height = (MAP_ROWS * CELL_SIZE) + "px";\nctx.scale(dpr, dpr);/' sovereign-vector/game.js
