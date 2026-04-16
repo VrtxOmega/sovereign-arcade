@@ -1,11 +1,11 @@
 <div align="center">
   <img src="https://img.shields.io/badge/VERITAS-%CE%A9-FFD700?style=for-the-badge&logoColor=black&color=000000" alt="VERITAS OMEGA Badge" />
+  <a href="https://vrtxomega.github.io/sovereign-arcade/"><img src="https://img.shields.io/badge/Live%20Site-GitHub%20Pages-2ea44f?style=for-the-badge" alt="Live Site - GitHub Pages"></a>
   <h1>Sovereign Arcade</h1>
   <p><b>AAA Desktop & Web Meta-Arcade Suite</b></p>
-  <p>
-    <a href="https://vrtxomega.github.io/sovereign-arcade/">Play the Arcade Online</a>
-  </p>
 </div>
+
+**Live Site:** https://vrtxomega.github.io/sovereign-arcade/
 
 ---
 
