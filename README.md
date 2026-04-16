@@ -1,70 +1,201 @@
 <div align="center">
-  <img src="https://img.shields.io/badge/VERITAS-%CE%A9-FFD700?style=for-the-badge&logoColor=black&color=000000" alt="VERITAS OMEGA Badge" />
-  <a href="https://vrtxomega.github.io/sovereign-arcade/"><img src="https://img.shields.io/badge/Live%20Site-GitHub%20Pages-2ea44f?style=for-the-badge" alt="Live Site - GitHub Pages"></a>
-  <h1>Sovereign Arcade</h1>
-  <p><b>AAA Desktop & Web Meta-Arcade Suite</b></p>
+  <img src="https://img.shields.io/badge/VERITAS-%CE%A9-FFD700?style=for-the-badge&logoColor=black&color=000000" alt="VERITAS OMEGA" />
+  &nbsp;
+  <a href="https://vrtxomega.github.io/sovereign-arcade/"><img src="https://img.shields.io/badge/Live%20Site-GitHub%20Pages-2ea44f?style=for-the-badge" alt="Live Site — GitHub Pages" /></a>
+  <br /><br />
+  <strong>SOVEREIGN ARCADE — Front-facing game showcase of the VERITAS &amp; Sovereign Ecosystem.</strong>
 </div>
 
-**Live Site:** https://vrtxomega.github.io/sovereign-arcade/
+---
+
+## Live Site
+
+Deployed continuously to GitHub Pages from the `main` branch:
+
+**https://vrtxomega.github.io/sovereign-arcade/**
 
 ---
 
-## Ω Overview
+## Ecosystem Canon
 
-**Sovereign Arcade** is a unified collection of 8 high-fidelity HTML/JS arcade games engineered under the **VERITAS Gold-and-Obsidian** structural standard. Built entirely on native web primitives with zero framework overhead, the arcade delivers a premium retro computing experience fused with modern glassmorphism UI logic, dynamic single-page routing, and immutable temporal persistence.
-
-### 🎮 The Collection
-
-The suite encompasses a full spread of classic mechanic reimaginings:
-1. **Sovereign Vector** (Asteroids) - Omnidirectional zero-G ballistics.
-2. **Kinetic Shield** (Missile Command) - Atmospheric bombardment defense.
-3. **Sovereign Breakout** - Kinetic brick desegregation. 
-4. **Sovereign Orbit** (Lunar Lander) - Thrust-based lunar insertion.
-5. **Sovereign Invaders** (Space Invaders) - Grid-structured alien threat repolarization.
-6. **Sovereign Stack** (Tetris) - Geometric compression logic.
-7. **Sovereign Snake** - High-velocity temporal ingestion.
-8. **Void Sweep** (Minesweeper) - Grid-based probability detonation.
+Sovereign Arcade is the interactive front of the Omega Universe — a deterministic, privacy-first technology stack engineered under the VERITAS Gold-and-Obsidian standard. The arcade demonstrates that high-fidelity, zero-dependency software can deliver premium operator-grade experiences without cloud dependency or framework overhead. Each title within the suite operates as an autonomous execution unit unified by a shared design contract, persistence model, and launcher shell. The collection is authored and maintained by VrtxOmega as a permanent, auditable artifact of the Omega Universe build record.
 
 ---
 
-## ⚡ AAA Features
+## Overview
 
-- **VERITAS Design System:** Every interface utilizes absolute color precision (`#ffd700` Gold, `#000000` Obsidian, `#00ffcc` Cyan accents, `#ff3333` Threat responses), rendering crisp CRT bloom vectors within translucent glassmorphous panels.
-- **Global Architectural Parity:** A monolithic structural pattern applies identical logic and UX parameters universally to all contained executable instances.
-- **Persistent Career Agglomeration:** `localStorage` is wired to every title's gameloop `doGameOver()` injection, natively saving session counts, total blocks shattered, raw points gained, and accuracy quotients seamlessly across sessions.
-- **Deca-Trophy Achievement Architecture:** Each game houses exactly 10 programmatic milestone achievements tracking lifetime and session thresholds. 
-- **Immutable Meta-Scoreboarding:** A standardized `LB_KEY` local serialization system maintains top-tier runs and highest execution outcomes for all 8 applications.
-- **Autonomous Sub-routing Transitions:** The global arcade shell autonomously renders and garbage-collects sub-components directly from the DOM, seamlessly transitioning between Home, Trophy, Record, and Deploy states without forcing hard refreshes.
+**What it is:**
+Sovereign Arcade is a unified, eight-title HTML/JavaScript arcade suite deployable as a static web site or a frameless Electron desktop application. All games share a single design system (Gold-and-Obsidian palette, glassmorphism panels, Inter typography) and a common `localStorage` persistence layer for scores, achievements, and session state.
+
+**What it is not:**
+This is not a framework, a game engine, or a SaaS product. It carries no runtime cloud dependency, no third-party analytics, and no telemetry. The Electron desktop wrapper is optional; every title runs in any modern browser directly from `index.html`.
 
 ---
 
-## 🚀 Execution
+## Included Games / Modules
 
-Sovereign Arcade works flawlessly as an independent static site, or wrapped inside an Electron Native Shell. 
+| Directory | Title | Archetype |
+|-----------|-------|-----------|
+| `sovereign-vector/` | Sovereign Vector | Asteroids — omnidirectional zero-G ballistics |
+| `kinetic-shield/` | Kinetic Shield | Missile Command — atmospheric bombardment defense |
+| `sovereign-breakout/` | Sovereign Breakout | Breakout — kinetic brick desegregation |
+| `sovereign-orbit/` | Sovereign Orbit | Lunar Lander — thrust-based lunar insertion |
+| `sovereign-invaders/` | Sovereign Invaders | Space Invaders — grid-structured threat repolarization |
+| `sovereign-stack/` | Sovereign Stack | Tetris — geometric compression logic |
+| `sovereign-snake/` | Sovereign Snake | Snake — high-velocity temporal ingestion |
+| `void-sweep/` | Void Sweep | Minesweeper — grid-based probability detonation |
 
-**Web Build:**
+Shared assets (fonts, icons, logo marks) reside in `assets/`. The launcher hub entry points are `index.html` (browser/web) and `launcher.js` (Electron main process).
+
+---
+
+## Architecture
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                     SOVEREIGN ARCADE HUB                       │
+│              index.html  ·  launcher.js (Electron)             │
+└─────────────────────────────┬──────────────────────────────────┘
+                              │  IPC (Electron) / file:// nav
+          ┌───────────────────┼────────────────────┐
+          ▼                   ▼                     ▼
+   ┌─────────────┐   ┌─────────────┐     ┌──────────────────┐
+   │ Game Module │   │ Game Module │ ... │  Game Module     │
+   │  (HTML/JS)  │   │  (HTML/JS)  │     │   (HTML/JS)      │
+   └──────┬──────┘   └──────┬──────┘     └────────┬─────────┘
+          │                 │                      │
+          └─────────────────┴──────────────────────┘
+                            │
+               ┌────────────▼─────────────┐
+               │     Persistence Layer     │
+               │   browser localStorage    │
+               │  (scores · achievements   │
+               │   · settings · sessions)  │
+               └───────────────────────────┘
+
+  Desktop only:
+  launcher.js ──► sa_settings.json (Electron userData path)
+                  master volume · SFX · fullscreen · particles
+```
+
+---
+
+## Persistence Model
+
+All game-state persistence uses the browser's native `localStorage` API. There is no server-side database, no account system, and no network call involved in saving or loading progress.
+
+Each title writes to namespaced keys covering:
+
+- **Score ledger** — top runs maintained under a standardised `LB_KEY` scheme per title.
+- **Achievement registry** — up to 10 milestone achievements per title stored as boolean/count pairs and evaluated at game-over.
+- **Session counters** — play-count, blocks destroyed, accuracy quotients, and similar per-game telemetry written at each `doGameOver()` invocation.
+
+The Electron desktop shell additionally writes `sa_settings.json` (master volume, SFX volume, fullscreen preference, particle effects, reduced-motion flag) to the OS Electron `userData` path. This file is independent of the browser deployment and is not synced across devices.
+
+---
+
+## Quickstart
+
+### Web — zero install
+
+Visit the live deployment:
+
+```
+https://vrtxomega.github.io/sovereign-arcade/
+```
+
+### Local — static file server
+
 ```bash
 npx serve .
-# Or visit https://vrtxomega.github.io/sovereign-arcade/
+# Open http://localhost:3000
 ```
 
-**Desktop Build:**
+No Node.js installation is required beyond `npx` to serve the static files.
+
+### Local — Electron desktop
+
 ```bash
-npm install
-npm start
+npm install          # installs the Electron devDependency
+npm start            # launches the frameless desktop shell
+npm run dev          # launches with DevTools open
 ```
+
+### Windows one-click launcher
+
+Three Windows helpers are included for operators who prefer not to use a terminal:
+
+- **`SovereignArcade.bat`** — auto-installs dependencies on first run, then launches Electron.
+- **`SovereignArcade.vbs`** — silent wrapper that invokes the `.bat` without opening a console window.
+- **`create_shortcut.py`** — generates a desktop shortcut pointing to the `.vbs` launcher.
+
+Run `python create_shortcut.py` once to place the shortcut, then use it for all subsequent launches.
 
 ---
 
-## ⚖️ Legal & Disclaimer
+## Development Workflow
 
-**Proprietary Construct**  
-This software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors, maintainers, or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
+```bash
+# Clone
+git clone https://github.com/VrtxOmega/sovereign-arcade.git
+cd sovereign-arcade
 
-All VERITAS OMEGA branding, source code structure, and AAA meta-layer designs are governed under strict sovereign use protocols. Commercial redistribution is strictly prohibited without explicit authorization.
+# Install Electron (required only for desktop development)
+npm install
+
+# Launch desktop shell
+npm start
+
+# Launch with DevTools
+npm run dev
+
+# Run tests (Sovereign Snake unit suite)
+npm test
+```
+
+Individual game modules are self-contained HTML/JS files. Open any module's `index.html` directly in a browser, or serve the root with `npx serve .`, to iterate without Electron overhead. No build step is required for any module.
+
+---
+
+## Deployment
+
+The live site is deployed automatically to **GitHub Pages** from the `main` branch root. No build step or CI compilation is required — `index.html` and all game module directories are served directly as static files.
+
+Pushing any commit to `main` triggers the `github-pages` environment deployment. The new version is typically live within 60 seconds of the push completing.
+
+---
+
+## Roadmap
+
+- [ ] Unified achievement overlay accessible from the hub without entering individual games
+- [ ] Cross-game aggregate leaderboard rendered on the hub home screen
+- [ ] Mobile-responsive layout pass for the hub shell
+- [ ] Per-game audio toggle preserved in `sa_settings.json`
+- [ ] Continuous integration pipeline for expanded game-logic unit tests
+
+---
+
+## Omega Universe Cross-Links
+
+| Project | Role |
+|---------|------|
+| [omega-brain-mcp](https://github.com/VrtxOmega/omega-brain-mcp) | Central MCP orchestration layer — AI reasoning backbone of the Omega Universe |
+| [veritas-vault](https://github.com/VrtxOmega/veritas-vault) | Encrypted knowledge store and document registry |
+| [Ollama-Omega](https://github.com/VrtxOmega/Ollama-Omega) | Sovereign Ollama bridge — local and cloud model MCP server |
+| [Aegis](https://github.com/VrtxOmega/Aegis) | Security and privacy governance layer |
+| [drift](https://github.com/VrtxOmega/drift) | Continuous deployment and drift-correction subsystem |
+| [SovereignMedia](https://github.com/VrtxOmega/SovereignMedia) | Media pipeline and content management node |
+
+---
+
+## License
+
+All VERITAS OMEGA branding, source code structure, and Gold-and-Obsidian design system artifacts are governed under strict sovereign use protocols. Commercial redistribution requires explicit written authorization from VrtxOmega.
+
+The software is provided "AS IS," without warranty of any kind. The authors and maintainers accept no liability for claims, damages, or other liability arising from the use of or dealings in the software.
 
 ---
 
 <div align="center">
-  <sub><i>Maintained by VERITAS OMEGA | Status: AUDIT-READY | GAP-CLOSED</i></sub>
+  <sub>Maintained by VERITAS OMEGA &nbsp;·&nbsp; Status: OPERATIONAL &nbsp;·&nbsp; Ecosystem: Omega Universe</sub>
 </div>
