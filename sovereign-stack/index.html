@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sovereign Stack</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="description" content="Sovereign Stack — Quantum Alignment Protocol. VERITAS OMEGA.">
+<title>SOVEREIGN STACK — VERITAS OMEGA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 <style>
 /* ── VERITAS CORE DESIGN SYSTEM ── */
@@ -51,6 +52,34 @@ body {
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   z-index: 10; transition: opacity 0.5s;
 }
+/* ── HOME SCREEN META LAYER ──────────────────────── */
+.home-tabs { display:flex; gap:0; margin-bottom:16px; border-bottom:1px solid rgba(255,215,0,0.18); width:560px; }
+.home-tab { flex:1; padding:9px 0; text-align:center; cursor:pointer; font-size:9px; letter-spacing:2px; color:#555; font-weight:600; border:none; border-bottom:2px solid transparent; background:none; font-family:'Inter',sans-serif; text-transform:uppercase; transition:all 0.2s; }
+.home-tab:hover { color:#aaa; }
+.home-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+.htab-content { display:none; width:560px; }
+.htab-content.active { display:block; }
+.career-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-bottom:14px; }
+.career-stat { background:rgba(255,255,255,0.025); border:1px solid rgba(255,215,0,0.07); border-radius:6px; padding:9px; text-align:center; }
+.career-stat .val { font-size:17px; font-weight:800; color:var(--gold); }
+.career-stat .lbl { font-size:8px; letter-spacing:1.5px; color:var(--text-dim); margin-top:2px; text-transform:uppercase; }
+.trophy-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; max-height:200px; overflow-y:auto; }
+.trophy-grid::-webkit-scrollbar { width:3px; }
+.trophy-grid::-webkit-scrollbar-thumb { background:rgba(255,215,0,0.3); border-radius:2px; }
+.trophy-card { background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px 5px; text-align:center; transition:border-color 0.3s; }
+.trophy-card.unlocked { border-color:rgba(255,215,0,0.4); box-shadow:0 0 12px rgba(255,215,0,0.08); }
+.trophy-card .icon { font-size:22px; margin-bottom:4px; filter:grayscale(1) brightness(0.35); }
+.trophy-card.unlocked .icon { filter:none; }
+.trophy-card .name { font-size:8px; font-weight:700; color:#444; letter-spacing:1px; text-transform:uppercase; }
+.trophy-card.unlocked .name { color:var(--gold); }
+.trophy-card .req { font-size:7px; color:#333; margin-top:2px; }
+.trophy-card.unlocked .req { color:#888; }
+.lb-table { width:100%; border-collapse:collapse; }
+.lb-table th { font-size:9px; letter-spacing:1.5px; color:#B8860B; text-transform:uppercase; padding:5px 8px; text-align:left; border-bottom:1px solid rgba(255,215,0,0.15); }
+.lb-table td { font-size:12px; padding:7px 8px; color:#bbb; border-bottom:1px solid rgba(255,255,255,0.04); }
+.lb-table tr:first-child td { color:var(--gold); font-weight:700; }
+.lb-rank { color:#B8860B; font-weight:800; width:30px; text-align:center; }
+.lb-empty { color:#444; font-size:12px; text-align:center; padding:28px 0; }
 .hidden { opacity: 0; pointer-events: none; visibility: hidden; }
 
 /* Menu Screen */
@@ -195,15 +224,29 @@ canvas { display: block; }
   <div class="brand-title">SOVEREIGN</div>
   <div class="brand-sub">Quantum Alignment Protocol</div>
   
-  <div class="mode-buttons">
-    <div class="mode-btn" onclick="startGame('classic')">
-      <h3>CLASSIC PROTOCOL</h3>
-      <p>Standard architectural blocks.<br>Familiar logic. Predictable flow.</p>
+  <div class="home-tabs">
+    <button class="home-tab active" data-tab="deploy">Deploy</button>
+    <button class="home-tab" data-tab="trophies">Trophies</button>
+    <button class="home-tab" data-tab="leaderboard">Records</button>
+  </div>
+  <div class="htab-content active" id="htab-deploy">
+    <div class="career-grid" id="careerGrid"></div>
+    <div class="mode-buttons">
+      <div class="mode-btn" onclick="startGame('classic')">
+        <h3>CLASSIC PROTOCOL</h3>
+        <p>Standard architectural blocks.<br>Familiar logic. Predictable flow.</p>
+      </div>
+      <div class="mode-btn" style="border-left-color: var(--cyan);" onclick="startGame('quantum')">
+        <h3 style="color: var(--cyan);">QUANTUM PROTOCOL</h3>
+        <p>Exotic block architectures.<br>Advanced pentomino mechanics.<br>Maximum tactical depth.</p>
+      </div>
     </div>
-    <div class="mode-btn" style="border-left-color: var(--cyan);" onclick="startGame('quantum')">
-      <h3 style="color: var(--cyan);">QUANTUM PROTOCOL</h3>
-      <p>Exotic block architectures.<br>Advanced pentomino mechanics.<br>Maximum tactical depth.</p>
-    </div>
+  </div>
+  <div class="htab-content" id="htab-trophies">
+    <div class="trophy-grid" id="trophyGrid"></div>
+  </div>
+  <div class="htab-content" id="htab-leaderboard">
+    <div id="lbContainer"></div>
   </div>
 </div>
 
@@ -276,6 +319,52 @@ canvas { display: block; }
 // ════════════════════════════════════════════════════════════════
 //   SOVEREIGN STACK — GAME ENGINE v1.0
 // ════════════════════════════════════════════════════════════════
+
+// ── CAREER / META SYSTEMS ──────────────────────────────
+const STACK_CK = 'vo_ss_career', STACK_LB = 'vo_ss_lb';
+let stackCareer = { totalGames:0, highScore:0, totalLinesCleared:0, maxLevel:0, tetrises:0, bestLines:0 };
+const STACK_TROPHIES = [
+  {id:'g1',icon:'🎮',name:'First Drop',desc:'Play first game',ok:()=>stackCareer.totalGames>=1},
+  {id:'g10',icon:'🔄',name:'Veteran',desc:'Play 10 games',ok:()=>stackCareer.totalGames>=10},
+  {id:'s1k',icon:'⭐',name:'1K Club',desc:'Score 1,000+',ok:()=>stackCareer.highScore>=1000},
+  {id:'s5k',icon:'🌟',name:'5K Club',desc:'Score 5,000+',ok:()=>stackCareer.highScore>=5000},
+  {id:'s10k',icon:'💎',name:'10K Master',desc:'Score 10,000+',ok:()=>stackCareer.highScore>=10000},
+  {id:'l5',icon:'📊',name:'Level 5',desc:'Reach Level 5',ok:()=>stackCareer.maxLevel>=5},
+  {id:'l10',icon:'🚀',name:'Level 10',desc:'Reach Level 10',ok:()=>stackCareer.maxLevel>=10},
+  {id:'t1',icon:'🏆',name:'Tetris!',desc:'Clear 4 lines at once',ok:()=>stackCareer.tetrises>=1},
+  {id:'t10',icon:'🔥',name:'Tetris Pro',desc:'10 Tetrises total',ok:()=>stackCareer.tetrises>=10},
+  {id:'c100',icon:'👑',name:'Century',desc:'100 total lines cleared',ok:()=>stackCareer.totalLinesCleared>=100},
+];
+function loadStackCareer(){try{const d=localStorage.getItem(STACK_CK);if(d)Object.assign(stackCareer,JSON.parse(d));}catch(e){}}
+function saveStackCareer(){localStorage.setItem(STACK_CK,JSON.stringify(stackCareer));}
+function getStackLB(){try{return JSON.parse(localStorage.getItem(STACK_LB))||[];}catch(e){return[];}}
+function addStackLB(s,lv,ln,mode){const lb=getStackLB();lb.push({score:s,level:lv,lines:ln,mode:mode,date:new Date().toLocaleDateString()});lb.sort((a,b)=>b.score-a.score);localStorage.setItem(STACK_LB,JSON.stringify(lb.slice(0,10)));}
+function renderStackCareer(){
+  const d=[{val:stackCareer.totalGames,lbl:'Games'},{val:stackCareer.highScore,lbl:'High Score'},{val:stackCareer.totalLinesCleared,lbl:'Lines Cleared'},{val:stackCareer.maxLevel,lbl:'Max Level'},{val:stackCareer.tetrises,lbl:'Tetrises'},{val:stackCareer.bestLines,lbl:'Best Lines'}];
+  const g=document.getElementById('careerGrid');if(!g)return;g.innerHTML='';
+  d.forEach(x=>{const e=document.createElement('div');e.className='career-stat';e.innerHTML=`<div class="val">${x.val}</div><div class="lbl">${x.lbl}</div>`;g.appendChild(e);});
+}
+function renderStackTrophies(){
+  const g=document.getElementById('trophyGrid');if(!g)return;g.innerHTML='';
+  STACK_TROPHIES.forEach(t=>{const u=t.ok();const e=document.createElement('div');e.className='trophy-card'+(u?' unlocked':'');e.innerHTML=`<div class="icon">${t.icon}</div><div class="name">${t.name}</div><div class="req">${t.desc}</div>`;g.appendChild(e);});
+}
+function renderStackLB(){
+  const lb=getStackLB();const c=document.getElementById('lbContainer');if(!c)return;
+  if(!lb.length){c.innerHTML='<div class="lb-empty">No records yet.</div>';return;}
+  const ranks=['🥇','🥈','🥉'];
+  c.innerHTML=`<table class="lb-table"><thead><tr><th></th><th>Score</th><th>Lvl</th><th>Lines</th><th>Mode</th><th>Date</th></tr></thead><tbody>${lb.map((e,i)=>`<tr><td class="lb-rank">${ranks[i]||(i+1)}</td><td>${e.score}</td><td>${e.level}</td><td>${e.lines}</td><td style="color:#555;font-size:10px;text-transform:uppercase;">${e.mode}</td><td style="color:#555;font-size:10px;">${e.date}</td></tr>`).join('')}</tbody></table>`;
+}
+document.querySelectorAll('.home-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.home-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.htab-content').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('htab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='trophies') renderStackTrophies();
+    if(btn.dataset.tab==='leaderboard') renderStackLB();
+  });
+});
+loadStackCareer(); renderStackCareer(); renderStackTrophies();
 
 // ── AUDIO SYSTEM ────────────────────────────────────────────────
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -511,6 +600,7 @@ function clearLines() {
   
   if (linesCleared > 0) {
     sfx.clear(linesCleared);
+    if (linesCleared >= 4) stackCareer.tetrises++;
     const basePts = [0, 100, 300, 500, 800];
     score += (basePts[linesCleared] || 1000) * level;
     lines += linesCleared;
@@ -782,6 +872,14 @@ function gameOver() {
   isGameOver = true;
   cancelAnimationFrame(animationId);
   sfx.over();
+  // ── AAA Career Save ──
+  stackCareer.totalGames++;
+  stackCareer.highScore = Math.max(stackCareer.highScore, score);
+  stackCareer.totalLinesCleared += lines;
+  stackCareer.maxLevel = Math.max(stackCareer.maxLevel, level);
+  stackCareer.bestLines = Math.max(stackCareer.bestLines, lines);
+  addStackLB(score, level, lines, gameMode);
+  saveStackCareer();
   document.getElementById('final-score').textContent = score;
   document.getElementById('overlay-gameover').classList.remove('hidden');
 }
@@ -849,6 +947,7 @@ function resetToMenu() {
   document.getElementById('screen-menu').classList.remove('hidden');
   document.getElementById('overlay-gameover').classList.add('hidden');
   cancelAnimationFrame(animationId);
+  renderStackCareer(); renderStackTrophies();
 }
 
 // ── BACKGROUND STARS ────────────────────────────────────────────

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sovereign Snake Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--panel:rgba(9,10,16,.78);--panel-strong:rgba(12,13,22,.9);--gold:#ffd700;--amber:#ff9f1c;--cyan:#3de2ff;--text:#f4f1e8;--text-dim:#9d9aa9;--border:rgba(255,215,0,.12);--shadow:0 24px 90px rgba(0,0,0,.5)}*{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at top,rgba(255,215,0,.08),transparent 30%),#040407;color:var(--text);font-family:'Inter',sans-serif}body{position:relative}#bgCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:.95}.shell{position:relative;z-index:1;width:min(1440px,100%);height:100%;margin:0 auto;padding:28px;display:grid;grid-template-columns:320px minmax(540px,1fr) 260px;gap:22px;align-items:stretch}.panel{background:var(--panel);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);backdrop-filter:blur(18px)}.sidebar,.rightbar{padding:24px;display:flex;flex-direction:column;gap:16px}.sidebar{padding:26px;gap:18px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--text-dim)}.title{font-family:'Playfair Display',serif;font-size:56px;line-height:.92;color:var(--gold);text-shadow:0 0 28px rgba(255,215,0,.15)}.subtitle{font-size:13px;line-height:1.75;color:var(--text-dim)}.hero-card{padding:18px;border-radius:18px;background:radial-gradient(circle at top right,rgba(255,215,0,.12),transparent 45%),linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid rgba(255,215,0,.08)}.hero-meta,.meter-header{display:flex;justify-content:space-between;align-items:center}.hero-meta{margin-bottom:14px}.hero-pill{padding:6px 10px;border-radius:999px;border:1px solid rgba(61,226,255,.18);color:var(--cyan);font-size:10px;text-transform:uppercase;letter-spacing:2px}.hero-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat-card,.meter-card,.status-tile,.hint,.event-item{border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02)}.stat-card,.status-tile{padding:14px;border-radius:14px}.stat-label,.status-name,.meter-header{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}.stat-label,.status-name{margin-bottom:8px}.stat-value{font-size:31px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}.accent-cyan{color:var(--cyan)}.accent-amber{color:var(--amber)}.meter-card{padding:16px;border-radius:16px;border-color:rgba(255,215,0,.08)}.meter-header{margin-bottom:10px}.meter-track{width:100%;height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06)}.meter-fill{width:0;height:100%;background:linear-gradient(90deg,var(--amber),var(--gold));box-shadow:0 0 14px rgba(255,215,0,.35)}.actions{display:flex;gap:10px;flex-wrap:wrap}button{appearance:none;border:1px solid rgba(255,215,0,.24);background:rgba(255,215,0,.07);color:var(--gold);border-radius:12px;padding:12px 16px;font:inherit;font-size:12px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;cursor:pointer;transition:transform .16s ease,background .16s ease,border-color .16s ease}button:hover{transform:translateY(-1px);background:rgba(255,215,0,.14);border-color:rgba(255,215,0,.38)}.secondary{color:var(--cyan);border-color:rgba(61,226,255,.24);background:rgba(61,226,255,.07)}.secondary:hover{background:rgba(61,226,255,.14);border-color:rgba(61,226,255,.38)}.hint-list,.event-log{display:grid;gap:10px}.hint,.event-item{padding:12px 14px;border-radius:14px;font-size:12px;line-height:1.7;color:var(--text-dim)}kbd{display:inline-block;min-width:28px;padding:2px 7px;margin-right:4px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text);font:inherit;font-size:10px;font-weight:700;text-align:center}.arena{position:relative;padding:20px;display:flex;align-items:center;justify-content:center;overflow:hidden}.board-shell{position:relative;width:min(78vmin,820px);aspect-ratio:1/1;border-radius:26px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015)),rgba(5,6,10,.96);border:1px solid rgba(255,215,0,.14);box-shadow:inset 0 0 0 1px rgba(255,215,0,.06),0 0 60px rgba(255,215,0,.05)}#boardCanvas{display:block;width:100%;height:100%;border-radius:20px;background:linear-gradient(180deg,rgba(255,215,0,.02),rgba(255,255,255,.01))}.board-overlay{position:absolute;inset:16px;display:flex;align-items:center;justify-content:center;background:rgba(5,6,10,.5);backdrop-filter:blur(12px);border-radius:20px;transition:opacity .2s ease}.board-overlay.hidden{opacity:0;pointer-events:none}.overlay-card{width:min(360px,calc(100% - 44px));padding:28px;text-align:center;border-radius:20px;background:var(--panel-strong);border:1px solid rgba(255,215,0,.18);box-shadow:0 18px 60px rgba(0,0,0,.35)}.overlay-kicker{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}.overlay-title{font-family:'Playfair Display',serif;font-size:38px;color:var(--gold);margin-bottom:12px}.overlay-text{font-size:13px;line-height:1.75;color:var(--text-dim);margin-bottom:18px}.status-value{font-size:18px;font-weight:800;color:var(--text)}.touch-controls{display:none;justify-content:center;margin-top:18px}.dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,64px);gap:10px;grid-template-areas:". up ." "left down right"}.dpad button[data-direction="up"]{grid-area:up}.dpad button[data-direction="left"]{grid-area:left}.dpad button[data-direction="down"]{grid-area:down}.dpad button[data-direction="right"]{grid-area:right}.dpad button{padding:0;font-size:22px}@media (max-width:1180px){html,body{overflow:auto}.shell{height:auto;min-height:100%;grid-template-columns:1fr;grid-template-areas:"sidebar" "arena" "rightbar"}.sidebar{grid-area:sidebar}.arena{grid-area:arena}.rightbar{grid-area:rightbar}.board-shell{width:min(92vw,780px)}.touch-controls{display:flex}}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+<main class="shell">
+  <aside class="panel sidebar">
+    <div><div class="eyebrow">Sovereign Arcade Elite Build</div><div class="title">Sovereign Snake</div></div>
+    <p class="subtitle">A prestige version of the classic loop: sharper visuals, escalating tempo, tactile feedback, and a cleaner tactical read on every turn.</p>
+    <section class="hero-card">
+      <div class="hero-meta"><div class="eyebrow">Run Telemetry</div><div class="hero-pill" id="statePill">Standby</div></div>
+      <div class="hero-grid">
+        <div class="stat-card"><div class="stat-label">Score</div><div class="stat-value" id="scoreValue">00</div></div>
+        <div class="stat-card"><div class="stat-label">Best</div><div class="stat-value" id="bestValue">00</div></div>
+        <div class="stat-card"><div class="stat-label">Level</div><div class="stat-value accent-cyan" id="levelValue">01</div></div>
+        <div class="stat-card"><div class="stat-label">Velocity</div><div class="stat-value accent-amber" id="speedValue">140ms</div></div>
+      </div>
+    </section>
+    <section class="meter-card">
+      <div class="meter-header"><span>Next Escalation</span><span id="progressLabel">0 / 5</span></div>
+      <div class="meter-track"><div id="progressFill" class="meter-fill"></div></div>
+    </section>
+    <div class="actions"><button id="primaryButton" type="button">Start</button><button id="restartButton" type="button" class="secondary">Restart</button></div>
+    <div class="hint-list">
+      <div class="hint"><kbd>Arrows</kbd><kbd>WASD</kbd> steer the chain.</div>
+      <div class="hint"><kbd>Space</kbd><kbd>P</kbd> pause or resume instantly.</div>
+      <div class="hint"><kbd>R</kbd> launches a fresh run. Swipe works on touch screens.</div>
+    </div>
+  </aside>
+  <section class="panel arena">
+    <div class="board-shell" id="boardShell">
+      <canvas id="boardCanvas" aria-label="Snake board"></canvas>
+      <div id="overlay" class="board-overlay">
+        <div class="overlay-card">
+          <div class="overlay-kicker" id="overlayKicker">Classic Loop</div>
+          <div class="overlay-title" id="overlayTitle">Sovereign Snake</div>
+          <p class="overlay-text" id="overlayText">Use arrow keys, WASD, or swipe to begin the loop.</p>
+          <button id="overlayButton" type="button">Start Run</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <aside class="panel rightbar">
+    <div class="status-tile"><div class="status-name">Integrity</div><div class="status-value" id="lengthValue">Length 3</div></div>
+    <div class="status-tile"><div class="status-name">Objective</div><div class="status-value" id="objectiveValue">Acquire next signal fruit</div></div>
+    <div class="status-tile">
+      <div class="status-name">Recent Intel</div>
+      <div id="eventLog" class="event-log">
+        <div class="event-item">System ready. Awaiting launch command.</div>
+        <div class="event-item">Consume fruit to extend the chain and raise velocity.</div>
+        <div class="event-item">Avoid the wall and your own trail.</div>
+      </div>
+    </div>
+    <div class="touch-controls" aria-label="Touch controls">
+      <div class="dpad">
+        <button type="button" data-direction="up" aria-label="Move up">↑</button>
+        <button type="button" data-direction="left" aria-label="Move left">←</button>
+        <button type="button" data-direction="down" aria-label="Move down">↓</button>
+        <button type="button" data-direction="right" aria-label="Move right">→</button>
+      </div>
+    </div>
+  </aside>
+</main>
+<script src="./snake-logic.js"></script>
+<script src="./elite.js"></script>
+</body>
+</html>

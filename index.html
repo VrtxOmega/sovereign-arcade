@@ -835,17 +835,43 @@ const GAMES = [
     art:     'vector',
   },
   {
-    id:      'sovereign-pinball',
-    title:   'SOVEREIGN PINBALL',
-    tagline: 'Crown Jewel Simulation',
-    genre:   'SIMULATION',
-    desc:    'A 1:1 scale physics simulation mapping the classic arcade pinball experience to the VERITAS obsidian engine. Master the plunger, track multipliers, and avoid the omega drain.',
-    path:    './sovereign-pinball/index.html',
+    id:      'sovereign-invaders',
+    title:   'SOVEREIGN INVADERS',
+    tagline: 'Cyber-Lattice Defense',
+    genre:   'ARCADE',
+    desc:    'Defend the VERITAS mainframes from descending threat vectors. Command your Sovereign Interceptor, deploy kinetic deflectors, and shatter the quantum swarm.',
+    path:    './sovereign-invaders/index.html',
+    accent:  '#00D4FF',
+    aRGB:    '0,212,255',
+    accent2: '#1a1a2e',
+    tags:    ['Arcade', 'Shooter', 'Retro Evolution'],
+    art:     'invaders',
+  },
+  {
+    id:      'sovereign-snake',
+    title:   'SOVEREIGN SNAKE',
+    tagline: 'Grid Pursuit Loop',
+    genre:   'CLASSIC',
+    desc:    'Run the classic snake loop across a clean tactical grid. Consume signal fruit, extend your chain, track score, and survive the arena boundaries.',
+    path:    './sovereign-snake/elite.html',
     accent:  '#FFD700',
     aRGB:    '255,215,0',
-    accent2: '#111',
-    tags:    ['Physics', 'Simulation', 'High Score'],
-    art:     'pinball',
+    accent2: '#FF5F43',
+    tags:    ['Classic', 'Snake', 'Score Attack', 'Grid'],
+    art:     'snake',
+  },
+  {
+    id:      'sovereign-orbit',
+    title:   'SOVEREIGN ORBIT',
+    tagline: 'Radial Confinement Field',
+    genre:   'ARCADE',
+    desc:    'Pilot your deflector along the perimeter of the containment field. Bounce hyper-payloads back into the Gravity Core before they escape orbit. Survive the Nightmare.',
+    path:    './sovereign-orbit/index.html',
+    accent:  '#FFD700',
+    aRGB:    '255,215,0',
+    accent2: '#00D4FF',
+    tags:    ['Arcade', 'Radial', 'Nightmare'],
+    art:     'orbit',
   },
 ];
 
@@ -1208,31 +1234,108 @@ function artVector(g) {
 </svg>`;
 }
 
-function artPinball(g) {
+function artInvaders(g) {
   return `<svg viewBox="0 0 300 175" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <radialGradient id="bgPinball" cx="50%" cy="50%">
-      <stop offset="0%" stop-color="#1A1400"/>
-      <stop offset="100%" stop-color="#050300"/>
+    <radialGradient id="bgInvaders" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#080D1A"/>
+      <stop offset="100%" stop-color="#03050A"/>
     </radialGradient>
-    <filter id="glPinball"><feGaussianBlur stdDeviation="3" result="b"/>
+    <filter id="glInvaders"><feGaussianBlur stdDeviation="3" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
-  <rect width="300" height="175" fill="url(#bgPinball)"/>
+  <rect width="300" height="175" fill="url(#bgInvaders)"/>
   
-  <g stroke="#FFD700" stroke-width="2.5" stroke-opacity="0.8" fill="none" filter="url(#glPinball)">
-    <!-- Flippers -->
-    <path d="M 120,130 L 142,145" stroke-linecap="round" />
-    <path d="M 180,130 L 158,145" stroke-linecap="round" />
-    <!-- Bumpers -->
-    <circle cx="150" cy="50" r="14" fill="#0A0A0C" />
-    <circle cx="110" cy="80" r="14" fill="#0A0A0C" />
-    <circle cx="190" cy="80" r="14" fill="#0A0A0C" />
-    <!-- Plunger Lane -->
-    <line x1="240" y1="20" x2="240" y2="150" />
-    <!-- Ball -->
-    <circle cx="140" cy="110" r="6" fill="#FFF" stroke="none" />
+  <!-- Threat Grid (Invaders) -->
+  <g fill="#00D4FF" filter="url(#glInvaders)" fill-opacity="0.8">
+    <path d="M96,40 h8 v8 h-8 z M112,40 h8 v8 h-8 z M104,48 h8 v8 h-8 z M96,56 h24 v8 h-24 z"/>
+    <path d="M136,40 h8 v8 h-8 z M152,40 h8 v8 h-8 z M144,48 h8 v8 h-8 z M136,56 h24 v8 h-24 z"/>
+    <path d="M176,40 h8 v8 h-8 z M192,40 h8 v8 h-8 z M184,48 h8 v8 h-8 z M176,56 h24 v8 h-24 z"/>
   </g>
+  
+  <!-- Bunkers -->
+  <g fill="#FFD700" fill-opacity="0.6">
+    <path d="M80,100 h30 v15 h-30 z M90,110 h10 v5 h-10 z" fill-rule="evenodd"/>
+    <path d="M135,100 h30 v15 h-30 z M145,110 h10 v5 h-10 z" fill-rule="evenodd"/>
+    <path d="M190,100 h30 v15 h-30 z M200,110 h10 v5 h-10 z" fill-rule="evenodd"/>
+  </g>
+  
+  <!-- Interceptor -->
+  <path d="M142,140 h16 v6 h-16 z M148,134 h4 v6 h-4 z" fill="#FFD700" filter="url(#glInvaders)"/>
+  
+  <!-- Laser -->
+  <line x1="150" y1="130" x2="150" y2="115" stroke="#00D4FF" stroke-width="2" filter="url(#glInvaders)"/>
+</svg>`;
+}
+
+function artOrbit(g) {
+  return `<svg viewBox="0 0 300 175">
+  <defs>
+    <filter id="glOrbit" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background Space -->
+  <rect width="300" height="175" fill="#05050A"/>
+  <!-- Orbit Ring -->
+  <circle cx="150" cy="87.5" r="60" stroke="#FFD700" stroke-width="1" stroke-dasharray="2 4" fill="none" opacity="0.4"/>
+  <!-- Core -->
+  <circle cx="150" cy="87.5" r="8" fill="#FFD700" filter="url(#glOrbit)"/>
+  <!-- Inner Ring Burst -->
+  <circle cx="150" cy="87.5" r="16" stroke="#FFD700" stroke-width="2" fill="none" opacity="0.6"/>
+  <!-- Paddle Arc -->
+  <path d="M 95 87.5 A 55 55 0 0 1 115 40" stroke="#00D4FF" stroke-width="4" fill="none" stroke-linecap="round" filter="url(#glOrbit)"/>
+  <!-- Projectile vector trail -->
+  <line x1="145" y1="87.5" x2="110" y2="60" stroke="#00D4FF" stroke-width="2" filter="url(#glOrbit)"/>
+  <circle cx="110" cy="60" r="3" fill="#FFFFFF" filter="url(#glOrbit)"/>
+</svg>`;
+}
+
+function artSnake(g) {
+  return `<svg viewBox="0 0 300 175" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="bgSnake" cx="50%" cy="45%">
+      <stop offset="0%" stop-color="#1B1304"/>
+      <stop offset="100%" stop-color="#050507"/>
+    </radialGradient>
+    <filter id="glSnake">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="300" height="175" fill="url(#bgSnake)"/>
+
+  <g stroke="#FFD700" stroke-width="0.5" stroke-opacity="0.12">
+    <path d="M30 25 H270"/>
+    <path d="M30 55 H270"/>
+    <path d="M30 85 H270"/>
+    <path d="M30 115 H270"/>
+    <path d="M30 145 H270"/>
+    <path d="M60 20 V155"/>
+    <path d="M105 20 V155"/>
+    <path d="M150 20 V155"/>
+    <path d="M195 20 V155"/>
+    <path d="M240 20 V155"/>
+  </g>
+
+  <g filter="url(#glSnake)">
+    <rect x="78" y="88" width="28" height="28" rx="6" fill="#A56F08"/>
+    <rect x="108" y="88" width="28" height="28" rx="6" fill="#BD860C"/>
+    <rect x="138" y="88" width="28" height="28" rx="6" fill="#D79C0E"/>
+    <rect x="138" y="58" width="28" height="28" rx="6" fill="#FFD700"/>
+    <circle cx="148" cy="68" r="3" fill="#050507"/>
+    <circle cx="156" cy="68" r="3" fill="#050507"/>
+  </g>
+
+  <circle cx="222" cy="70" r="10" fill="#FF5F43" filter="url(#glSnake)"/>
+  <path d="M222 54 C225 48, 234 48, 235 58" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
 </svg>`;
 }
 
@@ -1242,7 +1345,9 @@ function getArt(g) {
   if (g.art === 'void')     return artVoid(g);
   if (g.art === 'stack')    return artStack(g);
   if (g.art === 'vector')   return artVector(g);
-  if (g.art === 'pinball')  return artPinball(g);
+  if (g.art === 'invaders') return artInvaders(g);
+  if (g.art === 'snake')    return artSnake(g);
+  if (g.art === 'orbit')    return artOrbit(g);
   return `<svg viewBox="0 0 300 175"><rect width="300" height="175" fill="#0A0A14"/></svg>`;
 }
 

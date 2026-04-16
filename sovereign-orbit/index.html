@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="description" content="Sovereign Orbit — Competitive Confinement. VERITAS OMEGA.">
+<title>SOVEREIGN ORBIT — VERITAS OMEGA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+  :root {
+    --bg: #000000;
+    --gold: #FFD700;
+    --cyan: #00D4FF;
+    --red:  #FF2D45;
+  }
+  body, html {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: var(--bg);
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    user-select: none;
+  }
+  
+  /* CRITICAL AESTHETICS: CRT & Grid */
+  .viewport {
+    position: relative; width: 100vw; height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    perspective: 1200px; /* 3D perspective wrap */
+  }
+  
+  canvas {
+    transform: rotateX(2deg); /* slight tilt */
+    background: radial-gradient(circle at center, #05050A 0%, #000 80%);
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.1),
+                inset 0 0 60px rgba(0, 0, 0, 0.8);
+    border-radius: 50%; /* It's a radial grid */
+    border: 1px solid rgba(255,215,0,0.1);
+    max-width: 100vw; max-height: 100vh;
+    aspect-ratio: 1/1;
+  }
+
+  .scanlines {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+    z-index: 10; opacity: 0.8;
+  }
+
+  /* HUD */
+  .hud {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 20;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .hud-top {
+    display: flex; justify-content: space-between; padding: 30px 50px;
+    font-size: 24px; font-weight: 900; letter-spacing: 4px;
+    text-shadow: 0 0 10px var(--gold);
+    color: var(--gold);
+  }
+
+  /* Overlays */
+  .overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(10, 10, 15, 0.85); border: 1px solid var(--cyan);
+    padding: 40px 60px; text-align: center;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+    backdrop-filter: blur(10px);
+    z-index: 30;
+    pointer-events: auto;
+    border-radius: 8px;
+  }
+  .overlay.hidden { display: none; }
+  .overlay h1 {
+    font-size: 48px; margin: 0 0 10px 0; letter-spacing: 8px;
+    text-shadow: 0 0 15px var(--cyan); color: var(--cyan);
+  }
+  .overlay h2 {
+    font-size: 18px; margin: 0 0 30px 0; letter-spacing: 4px; color: #FFF; font-weight: 400;
+  }
+  .overlay .error-text { color: var(--red); text-shadow: 0 0 15px var(--red); }
+  
+  .btn {
+    background: transparent; border: 1px solid var(--gold);
+    color: var(--gold); padding: 15px 30px; font-size: 18px;
+    font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: 3px;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: inset 0 0 10px rgba(255,215,0,0.1);
+  }
+  .btn:hover {
+    background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold);
+  }
+  .btn.btn-red { border-color: var(--red); color: var(--red); box-shadow: inset 0 0 10px rgba(255,45,69,0.1); }
+  .btn.btn-red:hover { background: var(--red); color: #000; box-shadow: 0 0 20px var(--red); }
+
+  /* Chromatic Split Glitch */
+  @keyframes rgbGlitch {
+    0% { transform: translate(0) rotateX(2deg); filter: blur(0); }
+    20% { transform: translate(-10px, 5px) rotateX(2deg); filter: drop-shadow(10px 0 0 red) drop-shadow(-10px 0 0 cyan); }
+    40% { transform: translate(10px, -5px) rotateX(2deg); filter: drop-shadow(-10px 0 0 red) drop-shadow(10px 0 0 cyan); }
+    60% { transform: translate(-5px, 10px) rotateX(2deg); filter: drop-shadow(5px 0 0 red) drop-shadow(-5px 0 0 cyan); }
+    80% { transform: translate(5px, -10px) rotateX(2deg); filter: drop-shadow(-5px 0 0 red) drop-shadow(5px 0 0 cyan); }
+    100% { transform: translate(0) rotateX(2deg); filter: blur(0); }
+  }
+  .glitch-anim { animation: rgbGlitch 0.3s cubic-bezier(.25,.46,.45,.94) both; }
+
+  /* ── HOME SCREEN META LAYER ─────────────────────── */
+  .home-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid rgba(255,215,0,0.18); }
+  .home-tab { flex: 1; padding: 9px 0; text-align: center; cursor: pointer; font-size: 9px; letter-spacing: 2px; color: #555; font-weight: 600; border: none; border-bottom: 2px solid transparent; background: none; font-family: 'Inter', sans-serif; text-transform: uppercase; transition: all 0.2s; }
+  .home-tab:hover { color: #aaa; }
+  .home-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .htab-content { display: none; }
+  .htab-content.active { display: block; }
+  .career-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 14px; }
+  .career-stat { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,215,0,0.07); border-radius: 6px; padding: 9px; text-align: center; }
+  .career-stat .val { font-size: 17px; font-weight: 800; color: var(--gold); }
+  .career-stat .lbl { font-size: 8px; letter-spacing: 1.5px; color: #555; margin-top: 2px; text-transform: uppercase; }
+  .trophy-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; max-height: 200px; overflow-y: auto; }
+  .trophy-grid::-webkit-scrollbar { width: 3px; }
+  .trophy-grid::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 2px; }
+  .trophy-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 5px; text-align: center; transition: border-color 0.3s; }
+  .trophy-card.unlocked { border-color: rgba(255,215,0,0.4); box-shadow: 0 0 12px rgba(255,215,0,0.08); }
+  .trophy-card .icon { font-size: 22px; margin-bottom: 4px; filter: grayscale(1) brightness(0.35); }
+  .trophy-card.unlocked .icon { filter: none; }
+  .trophy-card .name { font-size: 8px; font-weight: 700; color: #444; letter-spacing: 1px; text-transform: uppercase; }
+  .trophy-card.unlocked .name { color: var(--gold); }
+  .trophy-card .req { font-size: 7px; color: #333; margin-top: 2px; }
+  .trophy-card.unlocked .req { color: #888; }
+  .lb-table { width: 100%; border-collapse: collapse; }
+  .lb-table th { font-size: 9px; letter-spacing: 1.5px; color: #B8860B; text-transform: uppercase; padding: 5px 8px; text-align: left; border-bottom: 1px solid rgba(255,215,0,0.15); }
+  .lb-table td { font-size: 12px; padding: 7px 8px; color: #bbb; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .lb-table tr:first-child td { color: var(--gold); font-weight: 700; }
+  .lb-rank { color: #B8860B; font-weight: 800; width: 30px; text-align: center; }
+  .lb-empty { color: #444; font-size: 12px; text-align: center; padding: 28px 0; }
+  #rally-banner { position: absolute; top: 45%; width: 100%; text-align: center; font-size: 28px; font-weight: 900; color: white; letter-spacing: 6px; text-shadow: 0 0 15px rgba(0,212,255,0.6); opacity: 0; pointer-events: none; z-index: 25; transform: translateY(15px); transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+
+</style>
+</head>
+<body>
+
+<div class="viewport">
+  <canvas id="game" width="800" height="800"></canvas>
+  <div class="scanlines"></div>
+  
+  <div class="hud">
+    <div class="hud-top">
+      <div id="ui-p2-score" style="color: var(--red);">SYSTEM: 0</div>
+      <div id="ui-wave">RADIAL PONG</div>
+      <div id="ui-p1-score" style="color: var(--cyan);">PLAYER: 0</div>
+    </div>
+  </div>
+
+  <div id="rally-banner"></div>
+  <div id="startScreen" class="overlay" style="max-width:480px;">
+    <h1>SOVEREIGN ORBIT</h1>
+    <h2>COMPETITIVE CONFINEMENT</h2>
+    <div class="home-tabs">
+      <button class="home-tab active" data-tab="deploy">Deploy</button>
+      <button class="home-tab" data-tab="trophies">Trophies</button>
+      <button class="home-tab" data-tab="leaderboard">Records</button>
+    </div>
+    <div class="htab-content active" id="htab-deploy">
+      <div class="career-grid" id="careerGrid"></div>
+      <div style="font-size:12px; color:#aaa; margin-bottom: 18px; letter-spacing:1px; line-height: 1.8;">
+        MOUSE: RIGHT HEMISPHERE DEFLECTOR<br>
+        CLICK TO SERVE.<br>
+        DEFEAT THE SYSTEM.
+      </div>
+      <button class="btn" onclick="startGame()">INITIATE MATCH</button>
+    </div>
+    <div class="htab-content" id="htab-trophies">
+      <div class="trophy-grid" id="trophyGrid"></div>
+    </div>
+    <div class="htab-content" id="htab-leaderboard">
+      <div id="lbContainer"></div>
+    </div>
+  </div>
+
+  <div id="gameOverScreen" class="overlay hidden">
+    <h1 class="error-text" id="finalResultText">FATAL ERROR</h1>
+    <h1 style="font-size:36px; margin:20px 0;" id="finalScore">SCORE 000000</h1>
+    <button class="btn btn-red" onclick="startGame()">REBOOT SYSTEM</button>
+    <button class="btn" style="margin-left:8px;" onclick="returnToMenu()">⤺ RETURN</button>
+  </div>
+</div>
+
+<script>
+// ── CAREER / META SYSTEMS ──────────────────────────────
+const CAREER_KEY = 'vo_so_career', LB_KEY = 'vo_so_lb';
+let orbitCareer = { wins:0, losses:0, totalGames:0, longestRally:0, totalRallies:0, perfectGames:0, maxSpeed:0, sweeps:0 };
+const TROPHIES = [
+  {id:'w1',icon:'🏓',name:'First Win',desc:'Win a match',ok:()=>orbitCareer.wins>=1},
+  {id:'w5',icon:'⚡',name:'Competitor',desc:'Win 5 matches',ok:()=>orbitCareer.wins>=5},
+  {id:'w25',icon:'🏆',name:'Champion',desc:'Win 25 matches',ok:()=>orbitCareer.wins>=25},
+  {id:'g10',icon:'🔄',name:'Veteran',desc:'Play 10 matches',ok:()=>orbitCareer.totalGames>=10},
+  {id:'r10',icon:'🎯',name:'Rally Pro',desc:'10+ hit rally',ok:()=>orbitCareer.longestRally>=10},
+  {id:'r20',icon:'🌟',name:'Rally God',desc:'20+ hit rally',ok:()=>orbitCareer.longestRally>=20},
+  {id:'p1',icon:'👑',name:'Perfect',desc:'Win 10-0',ok:()=>orbitCareer.perfectGames>=1},
+  {id:'s1',icon:'🧹',name:'Sweep',desc:'Win without losing a point',ok:()=>orbitCareer.sweeps>=1},
+  {id:'r100',icon:'🔥',name:'Endurance',desc:'100 total rallies',ok:()=>orbitCareer.totalRallies>=100},
+  {id:'w50',icon:'💎',name:'Legend',desc:'Win 50 matches',ok:()=>orbitCareer.wins>=50},
+];
+function loadCareer(){try{const d=localStorage.getItem(CAREER_KEY);if(d)Object.assign(orbitCareer,JSON.parse(d));}catch(e){}}
+function saveCareer(){localStorage.setItem(CAREER_KEY,JSON.stringify(orbitCareer));}
+function getLB(){try{return JSON.parse(localStorage.getItem(LB_KEY))||[];}catch(e){return[];}}
+function addLB(res,p1,p2){const lb=getLB();lb.push({result:res,p1:p1,p2:p2,date:new Date().toLocaleDateString()});lb.sort((a,b)=>b.p1-a.p1);localStorage.setItem(LB_KEY,JSON.stringify(lb.slice(0,10)));}
+function renderCareer(){
+  const d=[{val:orbitCareer.wins,lbl:'Wins'},{val:orbitCareer.losses,lbl:'Losses'},{val:orbitCareer.totalGames,lbl:'Total Games'},{val:orbitCareer.longestRally,lbl:'Longest Rally'},{val:orbitCareer.perfectGames,lbl:'Perfects'},{val:orbitCareer.sweeps,lbl:'Sweeps'}];
+  const g=document.getElementById('careerGrid');if(!g)return;g.innerHTML='';
+  d.forEach(x=>{const e=document.createElement('div');e.className='career-stat';e.innerHTML=`<div class="val">${x.val}</div><div class="lbl">${x.lbl}</div>`;g.appendChild(e);});
+}
+function renderTrophies(){
+  const g=document.getElementById('trophyGrid');if(!g)return;g.innerHTML='';
+  TROPHIES.forEach(t=>{const u=t.ok();const e=document.createElement('div');e.className='trophy-card'+(u?' unlocked':'');e.innerHTML=`<div class="icon">${t.icon}</div><div class="name">${t.name}</div><div class="req">${t.desc}</div>`;g.appendChild(e);});
+}
+function renderLB(){
+  const lb=getLB();const c=document.getElementById('lbContainer');if(!c)return;
+  if(!lb.length){c.innerHTML='<div class="lb-empty">No records yet.</div>';return;}
+  const ranks=['🥇','🥈','🥉'];
+  c.innerHTML=`<table class="lb-table"><thead><tr><th></th><th>Result</th><th>Score</th><th>Date</th></tr></thead><tbody>${lb.map((e,i)=>`<tr><td class="lb-rank">${ranks[i]||(i+1)}</td><td>${e.result}</td><td>${e.p1}-${e.p2}</td><td style="color:#555;font-size:10px;">${e.date}</td></tr>`).join('')}</tbody></table>`;
+}
+document.querySelectorAll('.home-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.home-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.htab-content').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('htab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='trophies') renderTrophies();
+    if(btn.dataset.tab==='leaderboard') renderLB();
+  });
+});
+let currentRally = 0;
+function announceRally(txt){
+  const b=document.getElementById('rally-banner');
+  b.innerText=txt;b.style.opacity='1';b.style.transform='translateY(0)';
+  setTimeout(()=>{b.style.opacity='0';b.style.transform='translateY(15px)';},1800);
+}
+loadCareer(); renderCareer(); renderTrophies();
+
+// ── AUDIO CONTEXT ENGINE ────────────────────────────────────────────────
+let actx;
+const sfx = {
+  init: () => {
+    if(actx) return;
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+  },
+  playSynth: (type, freq1, freq2, duration, vol=0.1, dist=0) => {
+    if(!actx) return;
+    let t = actx.currentTime;
+    let osc = actx.createOscillator();
+    let gain = actx.createGain();
+    
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq1, t);
+    osc.frequency.exponentialRampToValueAtTime(freq2 || freq1, t + duration);
+    
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + duration);
+    
+    if(dist > 0) {
+      let wave = new Float32Array(44100);
+      for(let i=0; i<44100; i++) {
+        let x = (i * 2) / 44100 - 1;
+        wave[i] = (3 + dist) * x * 20 * (Math.PI / 180) / (Math.PI + dist * Math.abs(x));
+      }
+      let shaper = actx.createWaveShaper();
+      shaper.curve = wave;
+      osc.connect(shaper);
+      shaper.connect(gain);
+    } else {
+      osc.connect(gain);
+    }
+    gain.connect(actx.destination);
+    
+    osc.start(t);
+    osc.stop(t + duration);
+  },
+  bounce: () => sfx.playSynth('square', 600, 1500, 0.1, 0.05, 50),
+  hitCore: () => sfx.playSynth('sawtooth', 150, 50, 0.3, 0.3, 200),
+  coreExplode: () => sfx.playSynth('triangle', 300, 10, 1.0, 0.5, 400),
+  lost: () => sfx.playSynth('sine', 400, 100, 0.8, 0.2, 50),
+  shoot: () => sfx.playSynth('square', 800, 200, 0.2, 0.05, 100)
+};
+
+// ── ENGINE ────────────────────────────────────────────────────────
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d', { alpha: false });
+const CX = 400; const CY = 400;
+
+function resizeCanvas() {
+  const size = Math.min(window.innerWidth, window.innerHeight) * 0.95;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  ctx.scale(size * dpr / 800, size * dpr / 800);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// State
+let state = 'START';
+let p1Score = 0, p2Score = 0;
+let particles = [];
+let payloads = [];
+let holdingBall = false;
+let turn = 1; // 1 = player, 2 = enemy
+let animId;
+
+const UI = {
+  p1Score: document.getElementById('ui-p1-score'),
+  p2Score: document.getElementById('ui-p2-score'),
+  start: document.getElementById('startScreen'),
+  over: document.getElementById('gameOverScreen'),
+  finalResultText: document.getElementById('finalResultText'),
+  finalScore: document.getElementById('finalScore'),
+  canvas: canvas
+};
+
+let cameraShake = 0;
+
+const player = {
+  r: 360,
+  theta: 0, // right middle
+  arc: Math.PI / 3, // 60 degrees wide
+};
+
+const enemy = {
+  r: 360,
+  theta: Math.PI, // left middle
+  arc: Math.PI / 3,
+  v: 0,
+  maxV: 0.05
+};
+
+// ── UTILS ──────────────────────────────────────────────────────────
+function rand(min, max) { return Math.random() * (max-min) + min; }
+function wrapAngle(a) {
+  while(a > Math.PI) a -= Math.PI*2;
+  while(a < -Math.PI) a += Math.PI*2;
+  return a;
+}
+
+// ── GAME LOGIC ─────────────────────────────────────────────────────
+function resetGame() {
+  p1Score = 0; p2Score = 0; turn = 1;
+  resetServing();
+  updateHUD();
+}
+
+function resetServing() {
+  player.theta = 0;
+  enemy.theta = Math.PI;
+  enemy.v = 0;
+  payloads = [];
+  particles = [];
+  holdingBall = true;
+}
+
+function spawnParticle(x, y, speed, color, angle) {
+  particles.push({
+    x, y, 
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    life: 1.0, decay: rand(0.02, 0.05),
+    color: color, size: rand(2, 6)
+  });
+}
+
+window.startGame = () => {
+  sfx.init();
+  UI.start.classList.add('hidden');
+  UI.over.classList.add('hidden');
+  resetGame(); currentRally = 0;
+  state = 'PLAY';
+  holdingBall = true;
+};
+window.returnToMenu = () => {
+  state = 'START';
+  UI.over.classList.add('hidden');
+  UI.start.classList.remove('hidden');
+  renderCareer(); renderTrophies();
+};
+
+function scorePoint(winner) {
+  sfx.coreExplode();
+  cameraShake = 20;
+  UI.canvas.classList.add('glitch-anim');
+  setTimeout(()=>UI.canvas.classList.remove('glitch-anim'), 300);
+  
+  orbitCareer.totalRallies++;
+  orbitCareer.longestRally = Math.max(orbitCareer.longestRally, currentRally);
+  currentRally = 0;
+
+  if (winner === 1) { 
+    p1Score++; turn = 2;
+  } else { 
+    p2Score++; turn = 1;
+  }
+  
+  updateHUD();
+  
+  if(p1Score >= 10 || p2Score >= 10) {
+    state = 'OVER';
+    orbitCareer.totalGames++;
+    const isWin = p1Score > p2Score;
+    if(isWin) { orbitCareer.wins++; } else { orbitCareer.losses++; }
+    if(isWin && p2Score === 0) { orbitCareer.perfectGames++; orbitCareer.sweeps++; }
+    addLB(isWin ? 'WIN' : 'LOSS', p1Score, p2Score);
+    saveCareer();
+    UI.finalResultText.innerText = isWin ? "SYSTEM DEFEATED" : "FATAL ERROR";
+    UI.finalResultText.style.color = isWin ? 'var(--cyan)' : 'var(--red)';
+    UI.finalScore.innerText = `P1 [${p1Score}] - [${p2Score}] SYS`;
+    UI.over.classList.remove('hidden');
+  } else {
+    resetServing();
+  }
+}
+
+function shootPayload() {
+  sfx.shoot();
+  let speed = 4.0; 
+  let activePaddle = turn === 1 ? player : enemy;
+  let startX = CX + Math.cos(activePaddle.theta) * (activePaddle.r - 10);
+  let startY = CY + Math.sin(activePaddle.theta) * (activePaddle.r - 10);
+  // Shoot directly across the circle
+  let ang = wrapAngle(activePaddle.theta + Math.PI); 
+
+  payloads.push({
+    x: startX,
+    y: startY,
+    vx: Math.cos(ang) * speed,
+    vy: Math.sin(ang) * speed,
+    speed: speed,
+    lastHit: turn,
+    trail: []
+  });
+}
+
+function updateHUD() {
+  if (UI.p1Score) UI.p1Score.innerText = `PLAYER: ${p1Score}`;
+  if (UI.p2Score) UI.p2Score.innerText = `SYSTEM: ${p2Score}`;
+}
+
+// ── MAIN LOOP ──────────────────────────────────────────────────────
+function update() {
+  if (state !== 'PLAY') return;
+
+  // AI Logic for Enemy
+  if (payloads.length > 0) {
+    let p = payloads[0];
+    let targetTheta = wrapAngle(Math.atan2(p.y - CY, p.x - CX));
+    // If targeted at enemy side
+    if (targetTheta > Math.PI/2 || targetTheta < -Math.PI/2) {
+      let diff = wrapAngle(targetTheta - enemy.theta);
+      if (diff > 0.1) enemy.v = enemy.maxV;
+      else if (diff < -0.1) enemy.v = -enemy.maxV;
+      else enemy.v = 0;
+    } else {
+      // Idle return to center
+      let diff = wrapAngle(Math.PI - enemy.theta);
+      if (diff > 0.05) enemy.v = enemy.maxV * 0.5;
+      else if (diff < -0.05) enemy.v = -enemy.maxV * 0.5;
+      else enemy.v = 0;
+    }
+  } else if (holdingBall && turn === 2) {
+    if (Math.random() < 0.02) {
+      holdingBall = false;
+      shootPayload();
+    }
+  }
+  
+  enemy.theta = wrapAngle(enemy.theta + enemy.v);
+  // Restrict Enemy to Left Half
+  if (enemy.theta > -Math.PI/2 && enemy.theta < Math.PI/2) {
+    if(enemy.theta >= 0) enemy.theta = Math.PI/2;
+    if(enemy.theta < 0) enemy.theta = -Math.PI/2;
+  }
+
+  // Payloads
+  for (let i = payloads.length - 1; i >= 0; i--) {
+    let p = payloads[i];
+    
+    p.trail.push({x: p.x, y: p.y});
+    if(p.trail.length > 15) p.trail.shift();
+
+    p.x += p.vx;
+    p.y += p.vy;
+
+    let dx = p.x - CX; let dy = p.y - CY;
+    let dist = Math.sqrt(dx*dx + dy*dy);
+
+    let hitPaddle = null;
+    let hitAng = Math.atan2(dy, dx);
+    
+    // Paddle Interaction
+    if (dist > player.r - 10 && dist < player.r + 10) {
+      if (Math.abs(wrapAngle(hitAng - player.theta)) < player.arc/2 + 0.1 && p.lastHit !== 1) {
+        hitPaddle = player;
+        p.lastHit = 1;
+      }
+      else if (Math.abs(wrapAngle(hitAng - enemy.theta)) < enemy.arc/2 + 0.1 && p.lastHit !== 2) {
+        hitPaddle = enemy;
+        p.lastHit = 2;
+      }
+    }
+    
+    if (hitPaddle) {
+      sfx.bounce();
+      cameraShake = 2;
+      currentRally++;
+      if(currentRally===5) announceRally('RALLY ×5');
+      else if(currentRally===10) announceRally('INTENSE ×10');
+      else if(currentRally===15) announceRally('LEGENDARY ×15');
+      else if(currentRally===20) announceRally('GODLIKE ×20');
+      let nx = -dx/dist; let ny = -dy/dist;
+      let diff = wrapAngle(hitAng - hitPaddle.theta);
+      let spin = (diff / (hitPaddle.arc/2)); 
+      let bounceAngle = Math.atan2(ny, nx) + spin * 0.8;
+      
+      p.speed = Math.min(p.speed + 0.5, 18);
+      p.vx = Math.cos(bounceAngle) * p.speed;
+      p.vy = Math.sin(bounceAngle) * p.speed;
+      
+      let pColor = p.lastHit === 1 ? '#00D4FF' : '#FF2D45';
+      for(let j=0; j<5; j++) spawnParticle(p.x, p.y, rand(1, 4), pColor, hitAng + Math.PI + rand(-0.5, 0.5));
+    }
+    
+    // Out of bounds
+    if (dist > player.r + 20) {
+      let isRightSide = (hitAng > -Math.PI/2 && hitAng < Math.PI/2);
+      payloads.splice(i, 1);
+      if (isRightSide) {
+        scorePoint(2); 
+      } else {
+        scorePoint(1); 
+      }
+      continue;
+    }
+  }
+
+  cameraShake *= 0.8;
+  if(cameraShake < 0.5) cameraShake = 0;
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let p = particles[i];
+    p.x += p.vx; p.y += p.vy;
+    p.life -= p.decay;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
+
+// ── DRAW LOOP ──────────────────────────────────────────────────────
+function draw() {
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(5, 5, 10, 0.3)';
+  ctx.fillRect(0, 0, 800, 800);
+
+  ctx.save();
+  let sx = (Math.random()-0.5)*cameraShake;
+  let sy = (Math.random()-0.5)*cameraShake;
+  ctx.translate(CX + sx, CY + sy);
+
+  ctx.globalCompositeOperation = 'lighter';
+
+  // Draw Grid Lines
+  ctx.strokeStyle = 'rgba(255, 215, 0, 0.05)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for(let r=50; r<=350; r+=50) { ctx.arc(0, 0, r, 0, Math.PI*2); }
+  ctx.stroke();
+  
+  // Dotted Median Line
+  ctx.beginPath();
+  ctx.setLineDash([8, 12]);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.moveTo(0, -player.r - 20); ctx.lineTo(0, player.r + 20);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw Outer Confinement Ring
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, 0, player.r + 10, 0, Math.PI*2);
+  ctx.stroke();
+
+  if (state === 'PLAY' || state === 'OVER') {
+    // Draw Payloads
+    for (let p of payloads) {
+      let pColor = p.lastHit === 1 ? '#00D4FF' : '#FF2D45';
+      if (p.trail.length > 0) {
+        ctx.beginPath();
+        ctx.moveTo(p.trail[0].x - CX, p.trail[0].y - CY);
+        for(let i=1; i<p.trail.length; i++) ctx.lineTo(p.trail[i].x - CX, p.trail[i].y - CY);
+        ctx.lineTo(p.x - CX, p.y - CY);
+        ctx.strokeStyle = pColor;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#FFF';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = pColor;
+      ctx.beginPath();
+      ctx.arc(p.x - CX, p.y - CY, 5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // Draw Player Paddle
+    ctx.strokeStyle = '#00D4FF';
+    ctx.lineWidth = 4;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = '#00D4FF';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(0, 0, player.r, player.theta - player.arc/2, player.theta + player.arc/2);
+    ctx.stroke();
+    
+    // Draw Enemy Paddle
+    ctx.strokeStyle = '#FF2D45';
+    ctx.shadowColor = '#FF2D45';
+    ctx.beginPath();
+    ctx.arc(0, 0, enemy.r, enemy.theta - enemy.arc/2, enemy.theta + enemy.arc/2);
+    ctx.stroke();
+    
+    // Held payload indicator
+    if (holdingBall && state === 'PLAY') {
+      let activePaddle = turn === 1 ? player : enemy;
+      ctx.strokeStyle = 'rgba(255, 215, 0, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(0,0); ctx.lineTo(Math.cos(activePaddle.theta)*activePaddle.r, Math.sin(activePaddle.theta)*activePaddle.r);
+      ctx.stroke();
+      
+      let hx = Math.cos(activePaddle.theta) * (activePaddle.r - 10);
+      let hy = Math.sin(activePaddle.theta) * (activePaddle.r - 10);
+      ctx.fillStyle = '#FFF';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = turn === 1 ? '#00D4FF' : '#FF2D45';
+      ctx.beginPath();
+      ctx.arc(hx, hy, 5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  // Draw Particles
+  for (let p of particles) {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = p.life;
+    ctx.beginPath();
+    ctx.arc(p.x - CX, p.y - CY, p.size, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function loop() {
+  update();
+  draw();
+  animId = requestAnimationFrame(loop);
+}
+
+// ── INPUT ──────────────────────────────────────────────────────────
+window.addEventListener('mousemove', e => {
+  if (state !== 'PLAY') return;
+  let dx = e.clientX - window.innerWidth/2;
+  let dy = e.clientY - window.innerHeight/2;
+  let ang = wrapAngle(Math.atan2(dy, dx));
+  // Restrict player to Right Half
+  if (ang > Math.PI/2 || ang < -Math.PI/2) {
+    ang = ang > 0 ? Math.PI/2 : -Math.PI/2;
+  }
+  player.theta = ang;
+});
+
+window.addEventListener('mousedown', e => {
+  if (state === 'PLAY' && holdingBall && turn === 1) {
+    holdingBall = false;
+    shootPayload();
+  }
+});
+
+// Init draw loop
+loop();
+
+</script>
+</body>
+</html>
