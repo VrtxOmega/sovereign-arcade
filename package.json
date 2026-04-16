@@ -1,0 +1,22 @@
+{
+  "name": "sovereign-arcade",
+  "version": "1.0.0",
+  "description": "VERITAS OMEGA — Sovereign Arcade. The ultimate VERITAS game collection.",
+  "main": "launcher.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node sovereign-snake/snake.test.js"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0"
+  },
+  "build": {
+    "appId": "com.vrtxomega.sovereign-arcade",
+    "productName": "SovereignArcade",
+    "win": {
+      "target": "portable",
+      "icon": "assets/icon.ico"
+    }
+  }
+}

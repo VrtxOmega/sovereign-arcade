@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sovereign Snake</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --obsidian: #050508;
+    --obsidian-soft: rgba(10, 10, 18, 0.88);
+    --panel: rgba(12, 12, 20, 0.82);
+    --gold: #ffd700;
+    --gold-dim: rgba(255, 215, 0, 0.18);
+    --text: #ececf4;
+    --text-dim: #8f90a6;
+    --snake-head: #ffd700;
+    --snake-body: #b8860b;
+    --food: #ff5f43;
+    --grid-line: rgba(255, 215, 0, 0.06);
+    --board-size: min(76vmin, 620px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at top, rgba(255, 215, 0, 0.08), transparent 32%),
+      linear-gradient(180deg, #09090f 0%, #050508 100%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .game-shell {
+    width: min(960px, 100%);
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 24px;
+    align-items: center;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--gold-dim);
+    border-radius: 14px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px);
+  }
+
+  .sidebar {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    color: var(--gold);
+    line-height: 0.95;
+    text-shadow: 0 0 18px rgba(255, 215, 0, 0.18);
+  }
+
+  .subtitle {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .stat {
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 215, 0, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    appearance: none;
+    border: 1px solid rgba(255, 215, 0, 0.28);
+    background: rgba(255, 215, 0, 0.08);
+    color: var(--gold);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: rgba(255, 215, 0, 0.14);
+  }
+
+  .helper {
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--text-dim);
+  }
+
+  .helper kbd {
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    font-size: 10px;
+    font-family: inherit;
+  }
+
+  .board-panel {
+    padding: 22px;
+  }
+
+  .board-frame {
+    position: relative;
+    width: var(--board-size);
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 215, 0, 0.12);
+    background:
+      linear-gradient(180deg, rgba(255, 215, 0, 0.04), rgba(255, 215, 0, 0.01)),
+      #09090f;
+    overflow: hidden;
+  }
+
+  .board {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    padding: 8px;
+    gap: 2px;
+  }
+
+  .cell {
+    border-radius: 3px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0)),
+      rgba(255, 215, 0, 0.015);
+    box-shadow: inset 0 0 0 1px var(--grid-line);
+  }
+
+  .cell.snake-head {
+    background: var(--snake-head);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.45);
+  }
+
+  .cell.snake-body {
+    background: linear-gradient(180deg, #c89610 0%, #9b6b07 100%);
+  }
+
+  .cell.food {
+    background: var(--food);
+    box-shadow: 0 0 10px rgba(255, 95, 67, 0.4);
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 4, 8, 0.72);
+    backdrop-filter: blur(8px);
+  }
+
+  .overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .overlay-card {
+    width: min(320px, calc(100% - 32px));
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    background: rgba(12, 12, 20, 0.92);
+    text-align: center;
+  }
+
+  .overlay-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .overlay-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+  }
+
+  .touch-controls {
+    display: none;
+    margin-top: 16px;
+    justify-content: center;
+  }
+
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 58px);
+    grid-template-rows: repeat(2, 58px);
+    gap: 8px;
+    grid-template-areas:
+      ". up ."
+      "left down right";
+  }
+
+  .dpad button[data-direction="up"] { grid-area: up; }
+  .dpad button[data-direction="left"] { grid-area: left; }
+  .dpad button[data-direction="down"] { grid-area: down; }
+  .dpad button[data-direction="right"] { grid-area: right; }
+
+  .dpad button {
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  @media (max-width: 860px) {
+    body {
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .game-shell {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .sidebar {
+      order: 2;
+    }
+
+    .board-panel {
+      order: 1;
+      padding: 14px;
+    }
+
+    :root {
+      --board-size: min(92vw, 520px);
+    }
+
+    .touch-controls {
+      display: flex;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="game-shell">
+    <aside class="panel sidebar">
+      <div>
+        <div class="eyebrow">Classic Loop</div>
+        <div class="title">Sovereign Snake</div>
+      </div>
+      <p class="subtitle">Guide the serpent across the grid, consume signal fruit, grow your chain, and avoid the walls or your own body.</p>
+
+      <div class="stat">
+        <div class="stat-label">Score</div>
+        <div class="stat-value" id="scoreValue">00</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Best</div>
+        <div class="stat-value" id="bestValue">00</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">State</div>
+        <div class="stat-value" id="stateValue" style="font-size:22px;">Standby</div>
+      </div>
+
+      <div class="actions">
+        <button id="primaryButton" type="button">Start</button>
+        <button id="restartButton" type="button">Restart</button>
+      </div>
+
+      <div class="helper">
+        <div><kbd>Arrow Keys</kbd> or <kbd>WASD</kbd> steer</div>
+        <div><kbd>P</kbd> or <kbd>Space</kbd> pause and resume</div>
+        <div><kbd>R</kbd> restarts the run</div>
+      </div>
+    </aside>
+
+    <section class="panel board-panel">
+      <div class="board-frame">
+        <div id="board" class="board" aria-label="Snake board"></div>
+        <div id="overlay" class="overlay">
+          <div class="overlay-card">
+            <div id="overlayTitle" class="overlay-title">Sovereign Snake</div>
+            <p id="overlayText" class="overlay-text">Use arrow keys or WASD to begin the loop.</p>
+            <button id="overlayButton" type="button">Start Run</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="touch-controls" aria-label="Touch controls">
+        <div class="dpad">
+          <button type="button" data-direction="up" aria-label="Move up">↑</button>
+          <button type="button" data-direction="left" aria-label="Move left">←</button>
+          <button type="button" data-direction="down" aria-label="Move down">↓</button>
+          <button type="button" data-direction="right" aria-label="Move right">→</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./snake-logic.js"></script>
+  <script src="./game.js"></script>
+</body>
+</html>
