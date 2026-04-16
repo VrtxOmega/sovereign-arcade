@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Tactical planetary defense simulator. Protect the datacenters. VERITAS OMEGA.">
-<meta property="og:title" content="KINETIC SHIELD â€” VERITAS OMEGA">
+<meta property="og:title" content="KINETIC SHIELD — VERITAS OMEGA">
 <meta property="og:description" content="Tactical planetary defense simulator. Protect the datacenters.">
 <meta property="og:image" content="https://vrtxomega.github.io/kinetic-shield/card.png">
 <meta property="og:url" content="https://vrtxomega.github.io/kinetic-shield/">
 <meta name="twitter:card" content="summary_large_image">
-<title>KINETIC SHIELD â€” VERITAS OMEGA</title>
+<title>KINETIC SHIELD — VERITAS OMEGA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -256,7 +256,7 @@
 
     <div class="hud-block" style="text-align: right;">
       <div class="hud-title">Cities Online</div>
-      <div class="hud-val" id="hudCities" style="color: #00ffaa; font-family: monospace;">â–®â–®â–®â–®â–®â–®</div>
+      <div class="hud-val" id="hudCities" style="color: #00ffaa; font-family: monospace;">■■■■■■</div>
     </div>
   </div>
 
@@ -266,7 +266,7 @@
   <div id="menu-main" class="menu-panel active" style="min-width:520px; max-width:560px;">
     <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 64px; font-weight: 700; color: var(--gold); opacity: 0.35; line-height: 1; margin-bottom: 2px; text-shadow: 0 0 30px rgba(255,215,0,0.25), 0 0 60px rgba(255,215,0,0.1);">Î©</div>
     <h1>KINETIC SHIELD</h1>
-    <div class="subtitle">VERITAS OMEGA â€” TACTICAL DEFENSE</div>
+    <div class="subtitle">VERITAS OMEGA — TACTICAL DEFENSE</div>
 
     <div class="home-tabs">
       <button class="home-tab active" data-tab="deploy">Deploy</button>
@@ -344,9 +344,9 @@
   </div>
 </div>
 
-<script>
+<script defer>
 // ================================================================
-//   VERITAS OMEGA â€” KINETIC SHIELD
+//   VERITAS OMEGA — KINETIC SHIELD
 //   Refactored for 2026 Graphics, Upgrades & Immersion
 // ================================================================
 
@@ -359,13 +359,13 @@ const ctx = canvas.getContext('2d');
 
 function resize() {
   const s = Math.min(window.innerWidth / W, window.innerHeight / H);
-  canvas.width = W; canvas.height = H;
+  const dpr = window.devicePixelRatio || 1; canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
   canvas.style.transform = `translate(-50%, -50%) scale(${s})`;
 }
 resize();
 window.addEventListener('resize', resize);
 
-// â”€â”€ PALETTE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PALETTE ─────────────────────────────────────────────────────
 const P = {
   bg:        '#050505',
   ground:    '#111111',
@@ -384,7 +384,7 @@ const P = {
   cyan:      '#00D4FF',
 };
 
-// â”€â”€ AUDIO SYSTEM (Synthesized) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AUDIO SYSTEM (Synthesized) ──────────────────────────────────
 let ac = null;
 function initAudio() { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); }
 function playTone(freq, type, dur, vol, freqEnd=null) {
@@ -409,7 +409,7 @@ const SFX = {
   upgrade: () => playTone(800,'sine',0.1,0.1,1200),
 };
 
-// â”€â”€ GAME STATE & UPGRADES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── GAME STATE & UPGRADES ───────────────────────────────────────
 const ST = { MENU:0, PLAY:1, STORE:2, OVER:3, PAUSED:4 };
 const BAT_X = [180, 475, 770];
 const CITY_X = [60, 310, 395, 555, 640, 890];
@@ -437,7 +437,7 @@ let gs = {
   runEmps: 0,
 };
 
-// â”€â”€ CAREER PROFILE (Persistent across ALL runs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CAREER PROFILE (Persistent across ALL runs) ─────────────────
 const CAREER_KEY = 'vo_ks_career';
 const LB_KEY = 'vo_ks_leaderboard';
 
@@ -462,23 +462,23 @@ function saveCareer() {
   localStorage.setItem(CAREER_KEY, JSON.stringify(career));
 }
 
-// â”€â”€ TROPHIES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── TROPHIES ────────────────────────────────────────────────────
 const TROPHIES = [
-  { id: 'first_blood',   icon: 'ðŸ’¥', name: 'First Blood',      desc: 'Intercept 1 threat',         check: () => career.totalIntercepts >= 1 },
-  { id: 'interceptor',   icon: 'ðŸŽ¯', name: 'Interceptor',      desc: 'Intercept 50 threats',        check: () => career.totalIntercepts >= 50 },
-  { id: 'ace_gunner',    icon: 'â­',  name: 'Ace Gunner',       desc: 'Intercept 250 threats',       check: () => career.totalIntercepts >= 250 },
-  { id: 'shield_wall',   icon: 'ðŸ›¡ï¸', name: 'Shield Wall',      desc: 'Clear 5 layers in one run',   check: () => career.highestLayer >= 5 },
-  { id: 'commander',     icon: 'ðŸŒŸ', name: 'Commander',        desc: 'Reach layer 10',              check: () => career.highestLayer >= 10 },
-  { id: 'legend',        icon: 'ðŸ‘‘', name: 'Legend',           desc: 'Reach layer 20',              check: () => career.highestLayer >= 20 },
-  { id: 'flawless_1',    icon: 'ðŸ’Ž', name: 'Pristine',        desc: 'Complete 1 flawless layer',   check: () => career.flawlessLayers >= 1 },
-  { id: 'flawless_10',   icon: 'ðŸŒŒ', name: 'Untouchable',     desc: 'Complete 10 flawless layers', check: () => career.flawlessLayers >= 10 },
-  { id: 'emp_user',      icon: 'âš¡',  name: 'Aegis Protocol',   desc: 'Use an EMP',                  check: () => career.empsUsed >= 1 },
-  { id: 'veteran',       icon: 'ðŸŽ–ï¸', name: 'Veteran',          desc: 'Complete 5 runs',             check: () => career.runsCompleted >= 5 },
-  { id: 'millionaire',   icon: 'ðŸ’°', name: 'Millionaire',     desc: 'Earn 50,000 lifetime credits', check: () => career.totalCreditsEarned >= 50000 },
-  { id: 'guardian',      icon: 'ðŸ™ï¸', name: 'Guardian',         desc: 'Save 100 cities',             check: () => career.citiesSaved >= 100 },
+  { id: 'first_blood',   icon: '💥', name: 'First Blood',      desc: 'Intercept 1 threat',         check: () => career.totalIntercepts >= 1 },
+  { id: 'interceptor',   icon: '🎯', name: 'Interceptor',      desc: 'Intercept 50 threats',        check: () => career.totalIntercepts >= 50 },
+  { id: 'ace_gunner',    icon: '⭐',  name: 'Ace Gunner',       desc: 'Intercept 250 threats',       check: () => career.totalIntercepts >= 250 },
+  { id: 'shield_wall',   icon: '🛡️', name: 'Shield Wall',      desc: 'Clear 5 layers in one run',   check: () => career.highestLayer >= 5 },
+  { id: 'commander',     icon: '🌟', name: 'Commander',        desc: 'Reach layer 10',              check: () => career.highestLayer >= 10 },
+  { id: 'legend',        icon: '👑', name: 'Legend',           desc: 'Reach layer 20',              check: () => career.highestLayer >= 20 },
+  { id: 'flawless_1',    icon: '💎', name: 'Pristine',        desc: 'Complete 1 flawless layer',   check: () => career.flawlessLayers >= 1 },
+  { id: 'flawless_10',   icon: '🌌', name: 'Untouchable',     desc: 'Complete 10 flawless layers', check: () => career.flawlessLayers >= 10 },
+  { id: 'emp_user',      icon: '⚡',  name: 'Aegis Protocol',   desc: 'Use an EMP',                  check: () => career.empsUsed >= 1 },
+  { id: 'veteran',       icon: '🎖️', name: 'Veteran',          desc: 'Complete 5 runs',             check: () => career.runsCompleted >= 5 },
+  { id: 'millionaire',   icon: '💰', name: 'Millionaire',     desc: 'Earn 50,000 lifetime credits', check: () => career.totalCreditsEarned >= 50000 },
+  { id: 'guardian',      icon: '🏙️', name: 'Guardian',         desc: 'Save 100 cities',             check: () => career.citiesSaved >= 100 },
 ];
 
-// â”€â”€ LEADERBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── LEADERBOARD ─────────────────────────────────────────────────
 function getLeaderboard() {
   try { return JSON.parse(localStorage.getItem(LB_KEY)) || []; } catch(e) { return []; }
 }
@@ -508,7 +508,7 @@ let wvCfg = { total: 0, spd: 0, interval: 0 };
 let spawnT = 0, spawned = 0;
 let lastT = 0;
 
-// â”€â”€ PERSISTENT SAVES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PERSISTENT SAVES ────────────────────────────────────────────
 function saveGame() {
   const saveObj = {
     l: gs.layer, c: gs.credits, m: gs.multiplier, e: gs.emps, u: gs.upgrades,
@@ -533,7 +533,7 @@ function loadGame() {
 }
 function clearSave() { localStorage.removeItem(SAVE_KEY); }
 
-// â”€â”€ INITIALIZATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── INITIALIZATION ──────────────────────────────────────────────
 function getBaseStats() {
   return {
     expR: 70 + (gs.upgrades.yield * UPGRADE_DEF.yield.valScale),
@@ -586,14 +586,14 @@ function startLayer() {
   setTimeout(() => { ann.style.opacity = '0'; ann.style.transform = 'translateY(20px)'; }, 2000);
 }
 
-// â”€â”€ DOM UI / UPDATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── DOM UI / UPDATES ────────────────────────────────────────────
 function updateHUD() {
   document.getElementById('hudScore').innerText = Math.floor(gs.credits).toLocaleString();
   document.getElementById('hudWave').innerText = String(gs.layer).padStart(2,'0');
   
   // Cities
   const aliveC = cities.filter(c=>c.alive).length;
-  document.getElementById('hudCities').innerText = 'â–®'.repeat(aliveC) + 'â–¯'.repeat(6-aliveC);
+  document.getElementById('hudCities').innerText = '■'.repeat(aliveC) + '□'.repeat(6-aliveC);
   document.getElementById('hudCities').style.color = aliveC>2 ? '#00ffaa' : '#FF3333';
 
   // Multiplier
@@ -690,7 +690,7 @@ function doGameOver() {
   document.getElementById('goLayers').innerText = gs.layer;
 }
 
-// â”€â”€ ENTITY LOGIC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ENTITY LOGIC ────────────────────────────────────────────────
 function spawnEnemy() {
   const tgts = [...cities, ...batteries].filter(t=>t.alive);
   if (!tgts.length) return;
@@ -776,9 +776,9 @@ function sparkle(x,y,col,n) {
   }
 }
 
-// â”€â”€ UPDATE LOOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── UPDATE LOOP ─────────────────────────────────────────────────
 function update(realDt) {
-  // Adrenaline Dilation Logic â€” only triggers on very close calls
+  // Adrenaline Dilation Logic — only triggers on very close calls
   let nearMiss = false;
   eMissiles.forEach(m => {
     if (m.alive && m.y > GROUND_Y - 60) {
@@ -812,7 +812,7 @@ function update(realDt) {
   });
   eMissiles = eMissiles.filter(m=>m.alive);
 
-  // Player Move â€” robust "past-the-target" detonation
+  // Player Move — robust "past-the-target" detonation
   pMissiles.forEach(p => {
     if(!p.alive) return;
     p.trail.unshift({x:p.x, y:p.y}); if(p.trail.length>8) p.trail.pop();
@@ -826,7 +826,7 @@ function update(realDt) {
   });
   pMissiles = pMissiles.filter(p=>p.alive);
 
-  // Explosions â€” use REAL time so they grow fast even during slow-mo
+  // Explosions — use REAL time so they grow fast even during slow-mo
   explosions.forEach(e => {
     e.t += realDt;
     // Pop quickly to 70% then ease to full
@@ -850,7 +850,7 @@ function update(realDt) {
   }
 }
 
-// â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── RENDER ──────────────────────────────────────────────────────
 function draw() {
   ctx.clearRect(0,0,W,H);
   
@@ -967,7 +967,7 @@ function draw() {
     ctx.beginPath(); ctx.arc(m.x, m.y, 2.5, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
   });
 
-  // Player Missiles â€” only draw target X and trail for in-flight missiles
+  // Player Missiles — only draw target X and trail for in-flight missiles
   pMissiles.forEach(p => {
     // Target X marker
     ctx.globalAlpha = 0.8;
@@ -993,7 +993,7 @@ function draw() {
     ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
   });
 
-  // Explosions â€” MASSIVE, bright shield domes
+  // Explosions — MASSIVE, bright shield domes
   explosions.forEach(e => {
     if(e.r<2) return;
     const progress = e.t/e.dur;
@@ -1003,7 +1003,7 @@ function draw() {
     ctx.shadowBlur = 40;
     ctx.shadowColor = e.isPl ? 'rgba(255,215,0,0.8)' : 'rgba(255,60,30,0.8)';
 
-    // Solid filled core â€” 60% of radius is opaque
+    // Solid filled core — 60% of radius is opaque
     const coreR = e.r * 0.6;
     ctx.globalAlpha = a * 0.5;
     ctx.fillStyle = e.isPl ? '#FFD700' : '#FF4422';
@@ -1051,7 +1051,7 @@ function draw() {
   });
   ctx.globalAlpha=1;
 
-  // Crosshair preview â€” only when enabled and cursor is within the playfield
+  // Crosshair preview — only when enabled and cursor is within the playfield
   if (gs.showCrosshair && gs.state===ST.PLAY && mx > 0 && mx < W && my > 0 && my < GROUND_Y) {
     const r = getBaseStats().expR;
     ctx.strokeStyle = P.pMissile; ctx.globalAlpha = 0.2;
@@ -1078,7 +1078,7 @@ function loop(ts) {
   requestAnimationFrame(loop);
 }
 
-// â”€â”€ INPUTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── INPUTS ──────────────────────────────────────────────────────
 let mx=W/2, my=H/2;
 function getPos(e) {
   const r = canvas.getBoundingClientRect();
@@ -1088,7 +1088,7 @@ function getPos(e) {
 }
 
 canvas.addEventListener('mousemove', e => { const p=getPos(e); mx=p.x; my=p.y; });
-canvas.addEventListener('mousedown', e => {
+canvas.addEventListener('pointerdown', e => {
   initAudio();
   if (gs.state !== ST.PLAY) return;
   const p=getPos(e);
@@ -1148,7 +1148,7 @@ chkCrosshair.addEventListener('change', () => {
   localStorage.setItem('vo_ks_crosshair', gs.showCrosshair);
 });
 
-// â”€â”€ HOME SCREEN RENDERING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── HOME SCREEN RENDERING ───────────────────────────────────────
 function renderHomeScreen() {
   renderCareerStats();
   renderTrophies();
@@ -1195,7 +1195,7 @@ function renderLeaderboard() {
     container.innerHTML = '<div class="lb-empty">No runs recorded yet.<br>Complete a run to appear on the board.</div>';
     return;
   }
-  const ranks = ['ðŸ¥‡','ðŸ¥ˆ','ðŸ¥‰'];
+  const ranks = ['🥇','🥈','🥉'];
   container.innerHTML = `
     <table class="lb-table">
       <thead><tr><th></th><th>Layer</th><th>Credits</th><th>Date</th></tr></thead>
@@ -1223,7 +1223,7 @@ document.querySelectorAll('.home-tab').forEach(tab => {
   });
 });
 
-// â”€â”€ BOOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── BOOT ────────────────────────────────────────────────────────
 loadCareer();
 document.getElementById('hud').style.display='none';
 if (loadGame()) document.getElementById('btnContinue').style.display = 'inline-block';

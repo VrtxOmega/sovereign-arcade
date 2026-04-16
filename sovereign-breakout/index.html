@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Sovereign Breakout — Decrypt the data lattice. VERITAS OMEGA.">
 <meta property="og:title" content="SOVEREIGN BREAKOUT — VERITAS OMEGA">
 <meta property="og:description" content="Arcade precision. VERITAS protocol. Shatter the encrypted nodes.">
@@ -130,7 +130,7 @@
     touch-action: manipulation;
   }
   #touchPauseBtn.visible { display: flex; }
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     .menu-panel { min-width: 90vw !important; max-width: 96vw !important; padding: 24px 18px !important; }
     .store-grid { grid-template-columns: 1fr !important; }
     .trophy-grid { grid-template-columns: repeat(3,1fr) !important; }
@@ -141,7 +141,7 @@
     .btn { padding: 12px 18px !important; font-size: 13px !important; }
     #announcer { font-size: 30px !important; letter-spacing: 5px !important; }
   }
-  @media (max-width: 480px) {
+  @media (max-width: 640px) {
     .career-grid { grid-template-columns: 1fr !important; }
     .trophy-grid { grid-template-columns: repeat(2,1fr) !important; }
   }
@@ -241,7 +241,7 @@
   </div>
 </div>
 
-<script>
+<script defer>
 // ================================================================
 //   VERITAS OMEGA — SOVEREIGN BREAKOUT
 //   Premium arcade breakout with full VERITAS design system.
@@ -258,7 +258,7 @@ const ctx    = canvas.getContext('2d');
 
 function resize() {
   const s = Math.min(window.innerWidth / W, window.innerHeight / H);
-  canvas.width = W; canvas.height = H;
+  const dpr = window.devicePixelRatio || 1; canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
   canvas.style.transform = `translate(-50%,-50%) scale(${s})`;
 }
 resize();

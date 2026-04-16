@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Sovereign Vector — Signal Interception Protocol. VERITAS OMEGA.">
 <meta property="og:title" content="SOVEREIGN VECTOR — VERITAS OMEGA">
 <meta property="og:description" content="Arcade precision. VERITAS protocol. Intercept the signal grid.">
@@ -85,7 +85,7 @@
   .lb-table tr:first-child td { color: var(--gold); font-weight: 700; }
   .lb-rank { color: var(--gold-dark); font-weight: 800; width: 30px; text-align: center; }
   .lb-empty { color: #444; font-size: 12px; text-align: center; padding: 28px 0; }
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     .menu-panel { min-width: 90vw !important; max-width: 96vw !important; padding: 24px 18px !important; }
     .trophy-grid { grid-template-columns: repeat(3,1fr) !important; }
     .career-grid { grid-template-columns: 1fr 1fr !important; }
@@ -168,7 +168,7 @@
   </div>
 </div>
 
-<script>
+<script defer>
 // ================================================================
 //   VERITAS OMEGA — SOVEREIGN VECTOR
 //   AAA Pac-Man with VERITAS gold-and-obsidian design system.
@@ -185,7 +185,7 @@ const ctx = canvas.getContext('2d');
 
 function resize() {
   const s = Math.min(window.innerWidth / (W+80), window.innerHeight / (H+80));
-  canvas.width = W; canvas.height = H;
+  const dpr = window.devicePixelRatio || 1; canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
   canvas.style.transform = `translate(-50%,-50%) scale(${s})`;
 }
 resize(); window.addEventListener('resize', resize);

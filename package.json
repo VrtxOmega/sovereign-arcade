@@ -18,5 +18,8 @@
       "target": "portable",
       "icon": "assets/icon.ico"
     }
+  },
+  "dependencies": {
+    "puppeteer": "^24.41.0"
   }
 }

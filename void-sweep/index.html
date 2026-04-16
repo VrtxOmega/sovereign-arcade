@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>VOID SWEEP — VERITAS OMEGA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -259,7 +259,7 @@
   </div>
 </div>
 
-<script>
+<script defer>
 // ================================================================
 //   VERITAS OMEGA — VOID SWEEP (Asteroids) — 2026 Edition
 // ================================================================
@@ -270,7 +270,7 @@ const TAU = Math.PI * 2;
 
 function resize() {
   const s = Math.min(window.innerWidth / W, window.innerHeight / H);
-  canvas.width = W; canvas.height = H;
+  const dpr = window.devicePixelRatio || 1; canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
   canvas.style.transform = `translate(-50%,-50%) scale(${s})`;
 }
 resize();
