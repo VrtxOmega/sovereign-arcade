@@ -24,6 +24,13 @@ Sovereign Arcade is the interactive front of the Omega Universe — a determinis
 
 ## Overview
 
+<div align="center">
+  <img src="assets/arcade_showcase.png" alt="Sovereign Arcade AAA Meta-Arcade Suite" width="800" />
+  <br/>
+  <sup><em>Sovereign Arcade AAA Meta-Arcade Suite &mdash; VERITAS gold-and-obsidian aesthetic</em></sup>
+</div>
+<br/>
+
 **What it is:**
 Sovereign Arcade is a unified, eight-title HTML/JavaScript arcade suite deployable as a static web site or a frameless Electron desktop application. All games share a single design system (Gold-and-Obsidian palette, glassmorphism panels, Inter typography) and a common `localStorage` persistence layer for scores, achievements, and session state.
 
