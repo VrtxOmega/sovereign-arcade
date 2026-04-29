@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2026-04-29T21:04:09.421Z",
+  "target": {
+    "name": "sovereign-arcade",
+    "repo": "/mnt/c/Veritas_Lab/sovereign-arcade",
+    "commitHash": "331594d44b7c55fb88ebb6a15d5a1a25804e216e",
+    "branch": "main"
+  },
+  "environment": {
+    "nodeVersion": "v22.14.0",
+    "os": "linux",
+    "arch": "x64",
+    "ci": false
+  },
+  "dependencies": [
+    {
+      "name": "puppeteer",
+      "version": "24.41.0",
+      "resolved": "/mnt/c/Veritas_Lab/sovereign-arcade/node_modules/puppeteer",
+      "integrity": null,
+      "suspicious": true,
+      "riskScore": 0.9
+    },
+    {
+      "name": "electron",
+      "version": "28.0.0",
+      "resolved": "/mnt/c/Veritas_Lab/sovereign-arcade/node_modules/electron",
+      "integrity": "af53880e3203ca83",
+      "suspicious": false,
+      "riskScore": 0.1
+    }
+  ],
+  "gates": [
+    {
+      "gate": "GIT_INTEGRITY",
+      "status": "FAIL",
+      "evidence": "Modified files: 34",
+      "durationMs": 294
+    },
+    {
+      "gate": "LOCKFILE",
+      "status": "PASS",
+      "evidence": "package-lock.json present",
+      "durationMs": 2
+    },
+    {
+      "gate": "DETERMINISTIC_BUILD",
+      "status": "INCONCLUSIVE",
+      "evidence": "No build command detected",
+      "durationMs": 0
+    },
+    {
+      "gate": "TEST_PASS",
+      "status": "PASS",
+      "evidence": "All tests passed",
+      "durationMs": 246
+    },
+    {
+      "gate": "LINT",
+      "status": "PASS",
+      "evidence": "npx passed",
+      "durationMs": 2804
+    }
+  ],
+  "adversarial": {
+    "totalPackages": 2,
+    "suspiciousPackages": 1,
+    "probes": [
+      {
+        "package": "puppeteer",
+        "probe": "TYPO_SQUATTING",
+        "result": "PASS",
+        "detail": "Name heuristic clean"
+      },
+      {
+        "package": "puppeteer",
+        "probe": "VERSION_ANOMALY",
+        "result": "PASS",
+        "detail": "Pinned: 24.41.0"
+      },
+      {
+        "package": "puppeteer",
+        "probe": "METADATA_INTEGRITY",
+        "result": "CRITICAL",
+        "detail": "No integrity hash found"
+      },
+      {
+        "package": "electron",
+        "probe": "TYPO_SQUATTING",
+        "result": "PASS",
+        "detail": "Name heuristic clean"
+      },
+      {
+        "package": "electron",
+        "probe": "VERSION_ANOMALY",
+        "result": "PASS",
+        "detail": "Pinned: 28.0.0"
+      },
+      {
+        "package": "electron",
+        "probe": "METADATA_INTEGRITY",
+        "result": "PASS",
+        "detail": "Hash: af53880e3203ca83"
+      },
+      {
+        "package": "system",
+        "probe": "KIMI_REASONING",
+        "result": "INCONCLUSIVE",
+        "detail": "OLLAMA_CLOUD_API_KEY is not set. Skipping Kimi adversarial analysis."
+      }
+    ],
+    "overallRisk": 0.2
+  },
+  "seal": {
+    "chainHash": "a7ea145775db3c851cb9b28a454b4c35dde5e2d200f36b47c69fdc0d2f5522b8",
+    "sequence": 211
+  },
+  "signature": "95e5aacffe0f8e35e71e22f6195f65877db6177cf7e08b544e14402967b35e32"
+}
