@@ -1,0 +1,53 @@
+{
+    "id": "217a6f83fcd54d4b8210d57f7557ec3a",
+    "version": "2.1.0",
+    "commit": "a1b2c3d4",
+    "project": "Exoplanet_Miner",
+    "primitives": [
+        {
+            "name": "TRANSIT_SNR",
+            "domain": {
+                "low": 0.0,
+                "high": 1000.0,
+                "inclusive_low": true,
+                "inclusive_high": true
+            },
+            "units": "ratio"
+        }
+    ],
+    "boundaries": [
+        {
+            "name": "snr_bound",
+            "constraint": {
+                "op": ">",
+                "left": "TRANSIT_SNR",
+                "right": 10.0
+            },
+            "description": "Signal-to-Noise Ratio must exceed 10.0 to rule out baseline photometric noise."
+        }
+    ],
+    "evidence": [
+        {
+            "id": "619f4e3418ee42d38596a154a2ee9881",
+            "variable": "TRANSIT_SNR",
+            "value": {
+                "x": 29.753759479830112,
+                "units": "ratio",
+                "kind": "point"
+            },
+            "timestamp": "2026-04-17T09:07:53.461273Z",
+            "method": {
+                "protocol": "Box Least Squares (BLS) Periodogram",
+                "parameters": {
+                    "frequency_factor": "500"
+                },
+                "repeatable": true
+            },
+            "provenance": {
+                "source_id": "NASA_MAST_KEPLER",
+                "acquisition": "Lightkurve_API",
+                "tier": "A"
+            }
+        }
+    ]
+}

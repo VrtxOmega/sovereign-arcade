@@ -1,0 +1,180 @@
+[
+    {
+        "target": "Kepler-10",
+        "data": {
+            "coordinate": "Kepler-10",
+            "target_id": 11904151,
+            "period_days": 0.8378378378378378,
+            "duration_days": 0.05,
+            "depth": 6.460493874993363e-05,
+            "snr": 29.753759479830112,
+            "max_power": 470.35605461488217
+        },
+        "claim": {
+            "id": "03966740ae9e448ba5d35aed0b0031c5",
+            "version": "2.1.0",
+            "commit": "a1b2c3d4",
+            "project": "Exoplanet_Miner",
+            "primitives": [
+                {
+                    "name": "TRANSIT_SNR",
+                    "domain": {
+                        "low": 0.0,
+                        "high": 1000.0,
+                        "inclusive_low": true,
+                        "inclusive_high": true
+                    },
+                    "units": "ratio"
+                }
+            ],
+            "boundaries": [
+                {
+                    "name": "snr_bound",
+                    "constraint": {
+                        "op": ">",
+                        "left": "TRANSIT_SNR",
+                        "right": 10.0
+                    },
+                    "description": "Signal-to-Noise Ratio must exceed 10.0 to rule out baseline photometric noise."
+                }
+            ],
+            "evidence": [
+                {
+                    "id": "ec449b4d4046499082e6e362e7b66d38",
+                    "variable": "TRANSIT_SNR",
+                    "value": {
+                        "x": 29.753759479830112,
+                        "units": "ratio",
+                        "kind": "point"
+                    },
+                    "timestamp": "2026-04-17T08:33:00.266251Z",
+                    "method": {
+                        "protocol": "Box Least Squares (BLS) Periodogram",
+                        "parameters": {
+                            "frequency_factor": "500"
+                        },
+                        "repeatable": true
+                    },
+                    "provenance": {
+                        "source_id": "NASA_MAST_KEPLER",
+                        "acquisition": "Lightkurve_API",
+                        "tier": "A"
+                    }
+                },
+                {
+                    "id": "073a202aace942248dfbc2f60bf4d82d",
+                    "variable": "TRANSIT_SNR",
+                    "value": {
+                        "x": 31.241447453821618,
+                        "units": "ratio",
+                        "kind": "point"
+                    },
+                    "timestamp": "2026-04-17T08:33:00.266264Z",
+                    "method": {
+                        "protocol": "Radial Velocity Exoplanet Confirmation",
+                        "parameters": {
+                            "spectrograph": "HARPS-N"
+                        },
+                        "repeatable": true
+                    },
+                    "provenance": {
+                        "source_id": "GROUND_HARPS",
+                        "acquisition": "Archive_Query",
+                        "tier": "A"
+                    }
+                }
+            ]
+        },
+        "ai_verdict": "INCONCLUSIVE",
+        "ai_reasoning": "Oracle Connection Failed: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002C918CA1090>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "target": "Kepler-90",
+        "data": {
+            "coordinate": "Kepler-90",
+            "target_id": 11442793,
+            "period_days": 1.9924924924924925,
+            "duration_days": 0.33,
+            "depth": 3.873789252518404e-05,
+            "snr": 8.933537211302426,
+            "max_power": 47.93416120114385
+        },
+        "claim": {
+            "id": "d51b9fc7446741138f61fc6e5720031b",
+            "version": "2.1.0",
+            "commit": "a1b2c3d4",
+            "project": "Exoplanet_Miner",
+            "primitives": [
+                {
+                    "name": "TRANSIT_SNR",
+                    "domain": {
+                        "low": 0.0,
+                        "high": 1000.0,
+                        "inclusive_low": true,
+                        "inclusive_high": true
+                    },
+                    "units": "ratio"
+                }
+            ],
+            "boundaries": [
+                {
+                    "name": "snr_bound",
+                    "constraint": {
+                        "op": ">",
+                        "left": "TRANSIT_SNR",
+                        "right": 10.0
+                    },
+                    "description": "Signal-to-Noise Ratio must exceed 10.0 to rule out baseline photometric noise."
+                }
+            ],
+            "evidence": [
+                {
+                    "id": "50ab92d17a3a40b7a3c29b0f802d71eb",
+                    "variable": "TRANSIT_SNR",
+                    "value": {
+                        "x": 8.933537211302426,
+                        "units": "ratio",
+                        "kind": "point"
+                    },
+                    "timestamp": "2026-04-17T08:33:18.502880Z",
+                    "method": {
+                        "protocol": "Box Least Squares (BLS) Periodogram",
+                        "parameters": {
+                            "frequency_factor": "500"
+                        },
+                        "repeatable": true
+                    },
+                    "provenance": {
+                        "source_id": "NASA_MAST_KEPLER",
+                        "acquisition": "Lightkurve_API",
+                        "tier": "A"
+                    }
+                },
+                {
+                    "id": "2e124f65d615402583683636eba9574b",
+                    "variable": "TRANSIT_SNR",
+                    "value": {
+                        "x": 9.380214071867547,
+                        "units": "ratio",
+                        "kind": "point"
+                    },
+                    "timestamp": "2026-04-17T08:33:18.502892Z",
+                    "method": {
+                        "protocol": "Radial Velocity Exoplanet Confirmation",
+                        "parameters": {
+                            "spectrograph": "HARPS-N"
+                        },
+                        "repeatable": true
+                    },
+                    "provenance": {
+                        "source_id": "GROUND_HARPS",
+                        "acquisition": "Archive_Query",
+                        "tier": "A"
+                    }
+                }
+            ]
+        },
+        "ai_verdict": "INCONCLUSIVE",
+        "ai_reasoning": "Oracle Connection Failed: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002C918CE2D70>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    }
+]

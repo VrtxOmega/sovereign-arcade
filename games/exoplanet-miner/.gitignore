@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# Node / Dashboard
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
+
+# Database & Runtime
+candidates.db
+known_hosts_cache.json
+evaluation.txt
+
+# Plots (generated at runtime)
+plots/*.png
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets
+*.env
+secret_manager_backup/
+
+# Antigravity
+.antigravityignore

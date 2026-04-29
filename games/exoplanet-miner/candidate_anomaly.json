@@ -1,0 +1,13 @@
+{
+    "coordinate": "Kepler-10",
+    "target_id": 11904151,
+    "ra": 285.679391,
+    "dec": 50.2413,
+    "stellar_radius": 1.044,
+    "plot_url": "/api/plots/Kepler-10.png",
+    "period_days": 0.8378378378378378,
+    "duration_days": 0.05,
+    "depth": 6.460493874993363e-05,
+    "snr": 29.753759479830112,
+    "max_power": 470.35605461488217
+}

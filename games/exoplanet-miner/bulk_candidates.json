@@ -1,0 +1,136 @@
+[
+    {
+        "target": "Kepler-10",
+        "data": {
+            "coordinate": "Kepler-10",
+            "target_id": 11904151,
+            "period_days": 0.8378378378378378,
+            "duration_days": 0.05,
+            "depth": 6.460493874993363e-05,
+            "snr": 29.753759479830112,
+            "max_power": 470.35605461488217
+        },
+        "claim": {
+            "id": "cba5c5682fb7404fa52f43d9a9c8bb83",
+            "version": "2.1.0",
+            "commit": "a1b2c3d4",
+            "project": "Exoplanet_Miner",
+            "primitives": [
+                {
+                    "name": "TRANSIT_SNR",
+                    "domain": {
+                        "low": 0.0,
+                        "high": 1000.0,
+                        "inclusive_low": true,
+                        "inclusive_high": true
+                    },
+                    "units": "ratio"
+                }
+            ],
+            "boundaries": [
+                {
+                    "name": "snr_bound",
+                    "constraint": {
+                        "op": ">",
+                        "left": "TRANSIT_SNR",
+                        "right": 10.0
+                    },
+                    "description": "Signal-to-Noise Ratio must exceed 10.0 to rule out baseline photometric noise."
+                }
+            ],
+            "evidence": [
+                {
+                    "id": "cf71163b967d49a69e85526abbb07468",
+                    "variable": "TRANSIT_SNR",
+                    "value": {
+                        "x": 29.753759479830112,
+                        "units": "ratio",
+                        "kind": "point"
+                    },
+                    "timestamp": "2026-04-17T08:47:14.161276Z",
+                    "method": {
+                        "protocol": "Box Least Squares (BLS) Periodogram",
+                        "parameters": {
+                            "frequency_factor": "500"
+                        },
+                        "repeatable": true
+                    },
+                    "provenance": {
+                        "source_id": "NASA_MAST_KEPLER",
+                        "acquisition": "Lightkurve_API",
+                        "tier": "A"
+                    }
+                }
+            ]
+        },
+        "ai_verdict": "INCONCLUSIVE",
+        "ai_reasoning": "Oracle Connection Failed: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001CA9A6B9BD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "target": "Kepler-90",
+        "data": {
+            "coordinate": "Kepler-90",
+            "target_id": 11442793,
+            "period_days": 1.9924924924924925,
+            "duration_days": 0.33,
+            "depth": 3.873789252518404e-05,
+            "snr": 8.933537211302426,
+            "max_power": 47.93416120114385
+        },
+        "claim": {
+            "id": "37523c0c05654a1dbcdf254188e3534a",
+            "version": "2.1.0",
+            "commit": "a1b2c3d4",
+            "project": "Exoplanet_Miner",
+            "primitives": [
+                {
+                    "name": "TRANSIT_SNR",
+                    "domain": {
+                        "low": 0.0,
+                        "high": 1000.0,
+                        "inclusive_low": true,
+                        "inclusive_high": true
+                    },
+                    "units": "ratio"
+                }
+            ],
+            "boundaries": [
+                {
+                    "name": "snr_bound",
+                    "constraint": {
+                        "op": ">",
+                        "left": "TRANSIT_SNR",
+                        "right": 10.0
+                    },
+                    "description": "Signal-to-Noise Ratio must exceed 10.0 to rule out baseline photometric noise."
+                }
+            ],
+            "evidence": [
+                {
+                    "id": "d7c82ae2c2494f1583a15863acb17691",
+                    "variable": "TRANSIT_SNR",
+                    "value": {
+                        "x": 8.933537211302426,
+                        "units": "ratio",
+                        "kind": "point"
+                    },
+                    "timestamp": "2026-04-17T08:47:32.068589Z",
+                    "method": {
+                        "protocol": "Box Least Squares (BLS) Periodogram",
+                        "parameters": {
+                            "frequency_factor": "500"
+                        },
+                        "repeatable": true
+                    },
+                    "provenance": {
+                        "source_id": "NASA_MAST_KEPLER",
+                        "acquisition": "Lightkurve_API",
+                        "tier": "A"
+                    }
+                }
+            ]
+        },
+        "ai_verdict": "INCONCLUSIVE",
+        "ai_reasoning": "Oracle Connection Failed: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001CA9A7AFA80>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    }
+]
