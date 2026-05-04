@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Labyrinth — The Obsidian Maze</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #FFD700; --gold-light: #FFF1B0; --gold-dark: #B8860B; --gold-dim: #8B7500;
+  --black: #000000; --carbon: #0A0A0A; --panel: #0d0d0d; --panel2: #111111;
+  --text: #E0E0E0; --dim: #666666;
+}
+body {
+  background: var(--carbon);
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(255,215,0,0.02) 0%, transparent 60%), linear-gradient(180deg, #0d0d0d 0%, #000000 100%);
+  min-height: 100vh; font-family: 'Rajdhani', sans-serif;
+  display: flex; justify-content: center; align-items: center; padding: 20px; overflow: hidden;
+  color: var(--text);
+}
+.app {
+  display: flex; gap: 20px;
+  background: linear-gradient(145deg, #0d0d0d, #000000);
+  border: 1px solid rgba(255,215,0,0.15); border-radius: 20px; padding: 24px;
+  box-shadow: 0 0 80px rgba(255,215,0,0.04), 0 40px 80px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,215,0,0.08);
+  max-width: 1050px; width: 100%;
+}
+.sidebar { width: 200px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+.sidebar h2 {
+  font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 700;
+  color: var(--gold); letter-spacing: 4px; text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(255,215,0,0.4);
+}
+.section {
+  background: var(--panel2); border: 1px solid rgba(255,215,0,0.08);
+  border-radius: 10px; padding: 12px;
+}
+.section label { display: block; font-size: 10px; font-weight: 600; color: var(--dim); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+select {
+  width: 100%; background: var(--carbon); border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 6px; color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; padding: 6px 10px; cursor: pointer; outline: none;
+}
+select:focus { border-color: var(--gold); }
+.btn {
+  width: 100%; padding: 10px; border-radius: 8px; font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  border: 1px solid rgba(255,215,0,0.15);
+  background: linear-gradient(145deg, #141414, #0a0a0a); color: var(--text);
+  letter-spacing: 2px; text-align: center;
+}
+.btn:hover { border-color: rgba(255,215,0,0.4); transform: translateY(-1px); }
+.btn:active { transform: translateY(1px); }
+.btn-gold {
+  background: linear-gradient(145deg, var(--gold), var(--gold-dark));
+  border-color: var(--gold); color: var(--black); font-weight: 700;
+  box-shadow: 0 0 20px rgba(255,215,0,0.3);
+}
+.btn-gold:hover { box-shadow: 0 0 35px rgba(255,215,0,0.5); }
+.main { flex: 1; display: flex; flex-direction: column; gap: 14px; align-items: center; min-width: 0; }
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700;
+  color: var(--gold); letter-spacing: 6px;
+  text-shadow: 0 0 25px rgba(255,215,0,0.5);
+}
+.maze-container {
+  background: #040404; border: 1px solid rgba(255,215,0,0.1);
+  border-radius: 12px; overflow: hidden; position: relative;
+  box-shadow: 0 0 40px rgba(255,215,0,0.03);
+}
+canvas { display: block; image-rendering: pixelated; }
+.hud {
+  display: flex; gap: 24px; justify-content: center; align-items: center;
+  font-family: 'Orbitron', monospace; font-size: 13px;
+  color: var(--dim); letter-spacing: 2px;
+}
+.hud-item { text-align: center; }
+.hud-val { color: var(--gold); font-size: 22px; font-weight: 700; }
+.hud-label { font-size: 9px; color: var(--dim); letter-spacing: 2px; }
+.hud-sep { width: 1px; height: 30px; background: rgba(255,215,0,0.1); }
+.help { font-size: 10px; color: rgba(255,215,0,0.15); text-align: center; letter-spacing: 1px; margin-top: 4px; }
+.win-overlay {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85); z-index: 100;
+  justify-content: center; align-items: center; flex-direction: column; gap: 20px;
+}
+.win-overlay.show { display: flex; }
+.win-title {
+  font-family: 'Orbitron', monospace; font-size: 42px; font-weight: 900;
+  color: var(--gold); letter-spacing: 8px;
+  text-shadow: 0 0 60px rgba(255,215,0,0.8);
+  animation: winGlow 1s ease-in-out infinite alternate;
+}
+@keyframes winGlow { from { text-shadow: 0 0 40px rgba(255,215,0,0.5); } to { text-shadow: 0 0 100px rgba(255,215,0,1); } }
+.win-sub { color: var(--text); font-size: 16px; letter-spacing: 3px; opacity: 0.7; }
+@keyframes glow { 0%,100%{text-shadow:0 0 20px rgba(255,215,0,0.4);} 50%{text-shadow:0 0 45px rgba(255,215,0,0.8);} }
+.brand { animation: glow 3s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar">
+    <h2>▸ DIFFICULTY</h2>
+    <div class="section">
+      <select id="difficulty" onchange="newMaze()">
+        <option value="easy">EASY  ·  15×15</option>
+        <option value="medium" selected>MEDIUM  ·  25×25</option>
+        <option value="hard">HARD  ·  35×35</option>
+        <option value="expert">EXPERT  ·  45×45</option>
+        <option value="insane">INSANE  ·  60×60</option>
+      </select>
+    </div>
+    <h2>▸ STYLE</h2>
+    <div class="section">
+      <select id="algorithm" onchange="newMaze()">
+        <option value="dfs">RECURSIVE BACKTRACK</option>
+        <option value="prim">PRIM'S ALGORITHM</option>
+        <option value="kruskal">KRUSKAL'S ALGORITHM</option>
+        <option value="wilson">WILSON'S ALGORITHM</option>
+        <option value="aldous">ALDOUS-BRODER</option>
+      </select>
+    </div>
+    <h2>▸ CONTROL</h2>
+    <div class="section" style="display:flex;flex-direction:column;gap:6px">
+      <button class="btn btn-gold" onclick="newMaze()">⟳ NEW MAZE</button>
+      <button class="btn" onclick="resetMaze()">↺ RESTART</button>
+      <button class="btn" onclick="toggleHint()" id="btnHint">◎ HINT PATH</button>
+      <button class="btn" onclick="toggleFog()" id="btnFog">◉ FOG: ON</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="brand">▲ LABYRINTH</div>
+    <div class="maze-container"><canvas id="canvas"></canvas></div>
+    <div class="hud">
+      <div class="hud-item"><div class="hud-val" id="hudMoves">0</div><div class="hud-label">MOVES</div></div>
+      <div class="hud-sep"></div>
+      <div class="hud-item"><div class="hud-val" id="hudTime">0:00</div><div class="hud-label">TIME</div></div>
+      <div class="hud-sep"></div>
+      <div class="hud-item"><div class="hud-val" id="hudBest">—</div><div class="hud-label">BEST</div></div>
+      <div class="hud-sep"></div>
+      <div class="hud-item"><div class="hud-val" id="hudDist">—</div><div class="hud-label">DISTANCE</div></div>
+    </div>
+    <div class="help">ARROW KEYS OR WASD TO MOVE · H FOR HINT · F FOR FOG · R TO RESTART · N FOR NEW MAZE</div>
+  </div>
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-title">EXIT FOUND</div>
+  <div class="win-sub" id="winStats"></div>
+  <button class="btn btn-gold" style="width:200px;font-size:18px;padding:14px" onclick="newMaze()">NEXT LABYRINTH</button>
+</div>
+
+<script>
+"use strict";
+
+var sizes = { easy: 15, medium: 25, hard: 35, expert: 45, insane: 60 };
+var size, maze, player, entrance, exit, visited, moveCount, timerSec, timerInt, hintOn, fogOn;
+  var bestScores = {};
+  var CELL = 0;
+
+  var canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
+
+  function getSize() { return sizes[document.getElementById('difficulty').value] || 25; }
+  function getAlgo() { return document.getElementById('algorithm').value; }
+
+  // ──── MAZE GENERATION ────
+  function initGrid(s) {
+    var g = []; for (var y = 0; y < s; y++) { g[y] = []; for (var x = 0; x < s; x++) g[y][x] = 15; } // all walls
+    return g;
+  }
+
+  function carve(g, x1, y1, x2, y2) {
+    g[y1][x1] &= ~(1 << dirIdx(x2-x1, y2-y1));
+    g[y2][x2] &= ~(1 << dirIdx(x1-x2, y1-y2));
+  }
+
+  function dirIdx(dx, dy) {
+    if (dx === 1) return 0;   // E
+    if (dy === 1) return 1;   // S
+    if (dx === -1) return 2;  // W
+    if (dy === -1) return 3;  // N
+    return -1;
+  }
+
+  function dirs() { return [[1,0],[0,1],[-1,0],[0,-1]]; }
+
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function dfsMaze(s) {
+    var g = initGrid(s), stack = [], visited = [];
+    for (var y = 0; y < s; y++) { visited[y] = []; for (var x = 0; x < s; x++) visited[y][x] = false; }
+    var sx = Math.floor(Math.random() * s), sy = Math.floor(Math.random() * s);
+    visited[sy][sx] = true; stack.push([sx, sy]);
+    while (stack.length) {
+      var cur = stack[stack.length - 1], cx = cur[0], cy = cur[1];
+      var unvisited = [];
+      dirs().forEach(function(d) {
+        var nx = cx + d[0], ny = cy + d[1];
+        if (nx >= 0 && nx < s && ny >= 0 && ny < s && !visited[ny][nx]) unvisited.push([nx, ny, d[0], d[1]]);
+      });
+      if (unvisited.length) {
+        shuffle(unvisited);
+        var n = unvisited[0];
+        carve(g, cx, cy, n[0], n[1]);
+        visited[n[1]][n[0]] = true;
+        stack.push([n[0], n[1]]);
+      } else { stack.pop(); }
+    }
+    return g;
+  }
+
+  function primMaze(s) {
+    var g = initGrid(s), inMaze = [];
+    for (var y = 0; y < s; y++) { inMaze[y] = []; for (var x = 0; x < s; x++) inMaze[y][x] = false; }
+    var sx = Math.floor(Math.random() * s), sy = Math.floor(Math.random() * s);
+    inMaze[sy][sx] = true;
+    var walls = [];
+    dirs().forEach(function(d) { var nx = sx + d[0], ny = sy + d[1]; if (nx >= 0 && nx < s && ny >= 0 && ny < s) walls.push([nx, ny, sx, sy]); });
+    while (walls.length) {
+      var wi = Math.floor(Math.random() * walls.length), w = walls[wi];
+      walls.splice(wi, 1);
+      var wx = w[0], wy = w[1], px = w[2], py = w[3];
+      if (!inMaze[wy][wx]) {
+        carve(g, px, py, wx, wy);
+        inMaze[wy][wx] = true;
+        dirs().forEach(function(d) { var nx = wx + d[0], ny = wy + d[1]; if (nx >= 0 && nx < s && ny >= 0 && ny < s && !inMaze[ny][nx]) walls.push([nx, ny, wx, wy]); });
+      }
+    }
+    return g;
+  }
+
+  function kruskalMaze(s) {
+    var g = initGrid(s), edges = [], parent = [];
+    for (var i = 0; i < s * s; i++) parent[i] = i;
+    function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+    function union(a, b) { var ra = find(a), rb = find(b); if (ra !== rb) { parent[rb] = ra; return true; } return false; }
+    for (var y = 0; y < s; y++)
+      for (var x = 0; x < s; x++)
+        dirs().forEach(function(d) {
+          var nx = x + d[0], ny = y + d[1];
+          if (nx >= 0 && nx < s && ny >= 0 && ny < s) edges.push([x, y, nx, ny]);
+        });
+    shuffle(edges);
+    for (var e = 0; e < edges.length; e++) {
+      var a = edges[e][1] * s + edges[e][0], b = edges[e][3] * s + edges[e][2];
+      if (union(a, b)) carve(g, edges[e][0], edges[e][1], edges[e][2], edges[e][3]);
+    }
+    return g;
+  }
+
+  function wilsonMaze(s) {
+    var g = initGrid(s), inMaze = [];
+    for (var y = 0; y < s; y++) { inMaze[y] = []; for (var x = 0; x < s; x++) inMaze[y][x] = false; }
+    var sx = Math.floor(Math.random() * s), sy = Math.floor(Math.random() * s);
+    inMaze[sy][sx] = true;
+    var remaining = [];
+    for (var y = 0; y < s; y++) for (var x = 0; x < s; x++) if (!inMaze[y][x]) remaining.push([x, y]);
+    while (remaining.length) {
+      var ri = Math.floor(Math.random() * remaining.length), start = remaining[ri];
+      var cx = start[0], cy = start[1], path = [[cx, cy]], dirMap = {};
+      while (!inMaze[cy][cx]) {
+        var d = shuffle(dirs())[0], nx = cx + d[0], ny = cy + d[1];
+        if (nx < 0 || nx >= s || ny < 0 || ny >= s) { cx = start[0]; cy = start[1]; path = [[cx, cy]]; dirMap = {}; continue; }
+        var key = ny * s + nx;
+        if (dirMap[key] !== undefined) {
+          var idx = dirMap[key];
+          path = path.slice(0, idx + 1);
+          dirMap = {}; for (var i = 0; i < path.length; i++) dirMap[path[i][1] * s + path[i][0]] = i;
+        }
+        path.push([nx, ny]); dirMap[key] = path.length - 1;
+        cx = nx; cy = ny;
+      }
+      for (var i = 0; i < path.length - 1; i++) {
+        carve(g, path[i][0], path[i][1], path[i+1][0], path[i+1][1]);
+        inMaze[path[i][1]][path[i][0]] = true;
+      }
+      inMaze[path[path.length-1][1]][path[path.length-1][0]] = true;
+      remaining = [];
+      for (var y = 0; y < s; y++) for (var x = 0; x < s; x++) if (!inMaze[y][x]) remaining.push([x, y]);
+    }
+    return g;
+  }
+
+  function aldousMaze(s) {
+    var g = initGrid(s), visited = [];
+    for (var y = 0; y < s; y++) { visited[y] = []; for (var x = 0; x < s; x++) visited[y][x] = false; }
+    var cx = Math.floor(Math.random() * s), cy = Math.floor(Math.random() * s);
+    visited[cy][cx] = true; var remaining = s * s - 1;
+    while (remaining > 0) {
+      var d = dirs()[Math.floor(Math.random() * 4)];
+      var nx = cx + d[0], ny = cy + d[1];
+      if (nx >= 0 && nx < s && ny >= 0 && ny < s) {
+        if (!visited[ny][nx]) { carve(g, cx, cy, nx, ny); visited[ny][nx] = true; remaining--; }
+        cx = nx; cy = ny;
+      }
+    }
+    return g;
+  }
+
+  function generateMaze(s, algo) {
+    switch (algo) {
+      case 'dfs': return dfsMaze(s);
+      case 'prim': return primMaze(s);
+      case 'kruskal': return kruskalMaze(s);
+      case 'wilson': return wilsonMaze(s);
+      case 'aldous': return aldousMaze(s);
+      default: return dfsMaze(s);
+    }
+  }
+
+  // ──── BFS SOLVER ────
+  function solveMaze(g, s, sx, sy, ex, ey) {
+    var dist = [], prev = [];
+    for (var y = 0; y < s; y++) { dist[y] = []; prev[y] = []; for (var x = 0; x < s; x++) { dist[y][x] = -1; prev[y][x] = -1; } }
+    var q = [[sx, sy]]; dist[sy][sx] = 0; var head = 0;
+    while (head < q.length) {
+      var cur = q[head++], cx = cur[0], cy = cur[1];
+      if (cx === ex && cy === ey) break;
+      dirs().forEach(function(d) {
+        var nx = cx + d[0], ny = cy + d[1];
+        if (nx >= 0 && nx < s && ny >= 0 && ny < s && dist[ny][nx] === -1 && !(g[cy][cx] & (1 << dirIdx(d[0], d[1])))) {
+          dist[ny][nx] = dist[cy][cx] + 1;
+          prev[ny][nx] = cx + cy * s;
+          q.push([nx, ny]);
+        }
+      });
+    }
+    // Reconstruct
+    var path = [], px = ex, py = ey;
+    while (!(px === sx && py === sy) && prev[py][px] !== -1) {
+      path.push([px, py]);
+      var p = prev[py][px]; px = p % s; py = Math.floor(p / s);
+    }
+    path.push([sx, sy]); path.reverse();
+    return { dist: dist[ey][ex], path: path };
+  }
+
+  // ──── GAME STATE ────
+  function newMaze() {
+    size = getSize();
+    CELL = Math.max(4, Math.floor(Math.min(540, 700) / size));
+    canvas.width = size * CELL; canvas.height = size * CELL;
+
+    var algo = getAlgo();
+    maze = generateMaze(size, algo);
+
+    // Pick farthest points
+    var sx = 0, sy = 0, ex = size - 1, ey = size - 1;
+    // Randomize entry/exit on opposite borders
+    var borders = Math.floor(Math.random() * 4);
+    if (borders === 0) { sy = 0; sx = Math.floor(Math.random() * size); ey = size - 1; ex = Math.floor(Math.random() * size); }
+    else if (borders === 1) { sy = Math.floor(Math.random() * size); sx = 0; ey = Math.floor(Math.random() * size); ex = size - 1; }
+    else { sy = 0; sx = Math.floor(Math.random() * size); ey = size - 1; ex = Math.floor(Math.random() * size); }
+
+    // Carve entrance and exit
+    if (sy === 0) maze[sy][sx] &= ~(1 << 3);
+    if (ey === size - 1) maze[ey][ex] &= ~(1 << 1);
+    if (sx === 0) maze[sy][sx] &= ~(1 << 2);
+    if (ex === size - 1) maze[ey][ex] &= ~(1 << 0);
+
+    var sol = solveMaze(maze, size, sx, sy, ex, ey);
+    // If unsolvable, regenerate
+    var attempts = 0;
+    while (sol.dist === -1 && attempts < 20) {
+      maze = generateMaze(size, algo);
+      if (sy === 0) maze[sy][sx] &= ~(1 << 3);
+      if (ey === size - 1) maze[ey][ex] &= ~(1 << 1);
+      sol = solveMaze(maze, size, sx, sy, ex, ey);
+      attempts++;
+    }
+
+    player = { x: sx, y: sy };
+    entrance = { x: sx, y: sy };
+    exit = { x: ex, y: ey, dist: sol.dist };
+    visited = []; for (var y = 0; y < size; y++) { visited[y] = []; for (var x = 0; x < size; x++) visited[y][x] = false; }
+    visited[sy][sx] = true;
+    moveCount = 0; timerSec = 0;
+    hintOn = false; fogOn = true;
+    clearInterval(timerInt); timerInt = setInterval(tickTimer, 1000);
+    startAnimLoop();
+    document.getElementById('winOverlay').classList.remove('show');
+    document.getElementById('btnFog').textContent = '◉ FOG: ON';
+    updateHUD(); draw();
+  }
+
+  function resetMaze() {
+    if (!maze) return;
+    player.x = entrance.x; player.y = entrance.y;
+    visited = []; for (var y = 0; y < size; y++) { visited[y] = []; for (var x = 0; x < size; x++) visited[y][x] = false; }
+    visited[entrance.y][entrance.x] = true;
+    moveCount = 0; timerSec = 0;
+    clearInterval(timerInt); timerInt = setInterval(tickTimer, 1000);
+    startAnimLoop();
+    document.getElementById('winOverlay').classList.remove('show');
+    updateHUD(); draw();
+  }
+
+  function canMove(x, y, dx, dy) {
+    var d = dirIdx(dx, dy);
+    return !(maze[y][x] & (1 << d));
+  }
+
+  function movePlayer(dx, dy) {
+    if (!maze) return;
+    var nx = player.x + dx, ny = player.y + dy;
+    if (nx < 0 || nx >= size || ny < 0 || ny >= size) return;
+    if (!canMove(player.x, player.y, dx, dy)) return;
+    player.x = nx; player.y = ny;
+    if (!visited[ny][nx]) visited[ny][nx] = true;
+    moveCount++;
+    updateHUD(); draw();
+    // Check win
+    if (player.x === exit.x && player.y === exit.y) win();
+  }
+
+  function win() {
+    clearInterval(timerInt);
+    var diff = document.getElementById('difficulty').value, algo = getAlgo();
+    var key = diff + '|' + algo, prev = bestScores[key];
+    if (!prev || moveCount < prev.moves) bestScores[key] = { moves: moveCount, time: timerSec };
+    document.getElementById('winOverlay').classList.add('show');
+    document.getElementById('winStats').textContent =
+      moveCount + ' MOVES  ·  ' + formatTime(timerSec) +
+      '  ·  BEST: ' + (bestScores[key] ? bestScores[key].moves + ' moves' : '—');
+    draw();
+  }
+
+  // ──── RENDERING ────
+  function draw() {
+    if (!maze) return;
+    ctx.fillStyle = '#030303'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (var y = 0; y < size; y++)
+      for (var x = 0; x < size; x++) {
+        var cx = x * CELL, cy = y * CELL;
+        var inFog = fogOn && !visited[y][x];
+        var cell = maze[y][x];
+
+        // Floor
+        if (inFog) ctx.fillStyle = '#020202';
+        else ctx.fillStyle = visited[y][x] ? '#060606' : '#030303';
+        ctx.fillRect(cx, cy, CELL, CELL);
+
+        if (inFog) continue;
+
+        // Walls
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+        ctx.lineWidth = Math.max(1, CELL * 0.15);
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.15)';
+        ctx.shadowBlur = 2;
+
+        if (cell & 1) { ctx.beginPath(); ctx.moveTo(cx + CELL, cy); ctx.lineTo(cx + CELL, cy + CELL); ctx.stroke(); } // E
+        if (cell & 2) { ctx.beginPath(); ctx.moveTo(cx, cy + CELL); ctx.lineTo(cx + CELL, cy + CELL); ctx.stroke(); } // S
+        if (cell & 4) { ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy + CELL); ctx.stroke(); } // W
+        if (cell & 8) { ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + CELL, cy); ctx.stroke(); } // N
+
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      }
+
+    // Entrance
+    if (!fogOn || visited[entrance.y] && visited[entrance.y][entrance.x]) {
+      var ix = entrance.x * CELL + CELL/2, iy = entrance.y * CELL + CELL/2;
+      // Arrow pointing into maze
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+      ctx.beginPath(); ctx.arc(ix, iy, CELL * 0.45, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(ix, iy, CELL * 0.45, 0, Math.PI * 2); ctx.stroke();
+      // Direction arrow
+      var adx = 0, ady = 0;
+      if (entrance.y === 0) ady = 1; else if (entrance.y === size - 1) ady = -1;
+      else if (entrance.x === 0) adx = 1; else if (entrance.x === size - 1) adx = -1;
+      ctx.strokeStyle = '#FFF1B0';
+      ctx.lineWidth = Math.max(1, CELL * 0.12);
+      ctx.beginPath();
+      ctx.moveTo(ix - adx * CELL * 0.25, iy - ady * CELL * 0.25);
+      ctx.lineTo(ix + adx * CELL * 0.25, iy + ady * CELL * 0.25);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(ix + adx * CELL * 0.15 - ady * CELL * 0.1, iy + ady * CELL * 0.15 - adx * CELL * 0.1);
+      ctx.lineTo(ix + adx * CELL * 0.25, iy + ady * CELL * 0.25);
+      ctx.lineTo(ix + adx * CELL * 0.15 + ady * CELL * 0.1, iy + ady * CELL * 0.15 + adx * CELL * 0.1);
+      ctx.stroke();
+    }
+
+    // Exit
+    if (!fogOn || visited[exit.y] && visited[exit.y][exit.x]) {
+      var ex = exit.x * CELL + CELL/2, ey = exit.y * CELL + CELL/2;
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.arc(ex, ey, CELL * 0.4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#FFD700';
+      ctx.shadowColor = 'rgba(255, 215, 0, 0.9)'; ctx.shadowBlur = CELL * 0.8;
+      ctx.beginPath(); ctx.arc(ex, ey, CELL * 0.3, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      // Ring
+      ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(ex, ey, CELL * 0.45, 0, Math.PI * 2); ctx.stroke();
+      // Pulsing outer ring
+      var pulse = 0.5 + 0.3 * Math.sin(Date.now() / 500);
+      ctx.strokeStyle = 'rgba(255, 215, 0, ' + pulse + ')';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(ex, ey, CELL * 0.55, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    // Player
+    var px = player.x * CELL + CELL/2, py = player.y * CELL + CELL/2;
+    // Trail glow
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.06)';
+    ctx.beginPath(); ctx.arc(px, py, CELL * 1.5, 0, Math.PI * 2); ctx.fill();
+    // Player dot
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(px, py, CELL * 0.45, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFF1B0';
+    ctx.shadowColor = 'rgba(255, 241, 176, 1)'; ctx.shadowBlur = CELL * 1.2;
+    ctx.beginPath(); ctx.arc(px, py, CELL * 0.35, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+
+    // Hint path
+    if (hintOn && exit.dist >= 0) {
+      var sol = solveMaze(maze, size, player.x, player.y, exit.x, exit.y);
+      if (sol.path && sol.path.length > 1) {
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.08)';
+        ctx.lineWidth = CELL * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(sol.path[0][0] * CELL + CELL/2, sol.path[0][1] * CELL + CELL/2);
+        for (var i = 1; i < sol.path.length; i++) ctx.lineTo(sol.path[i][0] * CELL + CELL/2, sol.path[i][1] * CELL + CELL/2);
+        ctx.stroke();
+      }
+    }
+
+    // Fog edges
+    if (fogOn) {
+      for (var y = 0; y < size; y++)
+        for (var x = 0; x < size; x++) {
+          if (visited[y][x]) {
+            ctx.fillStyle = '#030303';
+            dirs().forEach(function(d) {
+              var nx = x + d[0], ny = y + d[1];
+              if (nx >= 0 && nx < size && ny >= 0 && ny < size && !visited[ny][nx] && !canMove(x, y, d[0], d[1]))
+                ctx.fillRect(nx * CELL, ny * CELL, CELL, CELL);
+            });
+          }
+        }
+    }
+  }
+
+  // ──── ANIMATION LOOP (for exit pulse) ────
+  var animFrame;
+  function startAnimLoop() {
+    if (animFrame) cancelAnimationFrame(animFrame);
+    function tick() {
+      if (!maze) return;
+      var exitVisible = !fogOn || (visited[exit.y] && visited[exit.y][exit.x]);
+      if (exitVisible && !document.getElementById('winOverlay').classList.contains('show')) draw();
+      animFrame = requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  // ──── HUD ────
+  function tickTimer() { timerSec++; updateHUD(); }
+  function formatTime(s) { var m = Math.floor(s / 60), sec = s % 60; return m + ':' + (sec < 10 ? '0' : '') + sec; }
+  function updateHUD() {
+    document.getElementById('hudMoves').textContent = moveCount;
+    document.getElementById('hudTime').textContent = formatTime(timerSec);
+    var diff = document.getElementById('difficulty').value, algo = getAlgo();
+    var key = diff + '|' + algo, best = bestScores[key];
+    document.getElementById('hudBest').textContent = best ? best.moves + ' moves' : '—';
+    document.getElementById('hudDist').textContent = exit && exit.dist >= 0 ? exit.dist + ' steps' : '—';
+  }
+
+  function toggleHint() { hintOn = !hintOn; document.getElementById('btnHint').textContent = hintOn ? '◎ HINT: ON' : '◎ HINT PATH'; draw(); }
+  function toggleFog() { fogOn = !fogOn; document.getElementById('btnFog').textContent = fogOn ? '◉ FOG: ON' : '◉ FOG: OFF'; draw(); }
+
+  // ──── INPUT ────
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'SELECT') return;
+    switch (e.key) {
+      case 'ArrowUp': case 'w': case 'W': e.preventDefault(); movePlayer(0, -1); break;
+      case 'ArrowDown': case 's': case 'S': e.preventDefault(); movePlayer(0, 1); break;
+      case 'ArrowLeft': case 'a': case 'A': e.preventDefault(); movePlayer(-1, 0); break;
+      case 'ArrowRight': case 'd': case 'D': e.preventDefault(); movePlayer(1, 0); break;
+      case 'r': case 'R': resetMaze(); break;
+      case 'n': case 'N': newMaze(); break;
+      case 'h': case 'H': toggleHint(); break;
+      case 'f': case 'F': toggleFog(); break;
+    }
+  });
+
+  // ──── INIT ────
+  newMaze();
+</script>
+</body>
+</html>
